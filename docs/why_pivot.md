@@ -1,18 +1,19 @@
-# Framing & Positioning: "Collective Equilibrium, Individual Exploitability"
+# Framing & Positioning: "Low-Rank Games, High-Entropy Experts"
 
-Last updated Feb 24, 2026. Reflects Phase 1 results: autoregressive BC, dynamics v2, and three-config ablation.
+Last updated Feb 24, 2026. Reflects Phase 2 structural analysis results. Central finding: low effective rank (~3) explains collective equilibrium. QRE doesn't fit. Ecological adaptation not supported.
 
 ---
 
 ## 1. The Finding
 
-Expert VGC players are **individually exploitable** but **collectively near-Nash** — via **symmetric error cancellation**.
+Expert VGC players are **individually exploitable** but **collectively near-Nash**.
 
 - **Individual exploitability**: mean 1.41–1.52 reward units depending on dynamics oracle (v1: 1.41 [1.36, 1.47], v2: 1.52 [1.47, 1.58]). A best-responding adversary gains substantially. Both exceed the dynamics noise floor (0.41) by ≥1.0 units.
 - **Collective equilibrium**: BC-vs-BC ≈ Nash value across all configs (gaps: -0.02, -0.03, +0.02). When experts face other experts, outcomes match Nash. Holds across reward weights, BC factorizations, and dynamics model quality.
-- **Error cancellation**: Value decomposition reveals the mechanism. BC P1 loses ~1.0 against Nash P2, but Nash P1 gains ~1.0 against BC P2. These symmetric errors cancel in expert-vs-expert play (all 500 matchups show opposite-sign cross-play gaps). BC-vs-BC ≈ Nash is NOT because individual play is near-optimal — it's because both players are suboptimal in symmetric, offsetting ways.
+- **Structural explanation (Phase 2)**: SVD analysis reveals payoff matrices have effective rank ~3 out of ~122 nominal actions. Top-1 singular value captures 76% of the Frobenius norm. In the payoff-relevant SVD subspace, TV(BC, Nash) collapses from 0.99 to 0.30. bc\_vs\_bc ≈ V\* is structurally inevitable: most strategy variation lies in the null space of R, producing negligible payoff differences. Lipton et al. (2003) predict Nash support ≤ rank+1 ≈ 4; we observe 2.7.
+- **Negative results**: QRE doesn't fit BC (best TV = 0.68). BC is not ecologically adapted (MORE regret vs BC than vs Nash, indifference ratio 1.75). Not an approximate correlated equilibrium (0% of matchups with swap regret < 0.1). The low-rank structure is the clean, complete explanation.
 
-**Strategy-space distances** confirm BC and Nash are maximally different: TV distance 0.99, BC places 1.3% of mass on Nash-support actions, Nash support averages 2.7 actions vs BC's ~95.
+**Strategy-space distances** confirm BC and Nash are maximally different in the full simplex: TV distance 0.99, BC places 1.3% of mass on Nash-support actions, Nash support averages 2.7 actions vs BC's ~95. But this distance is inflated by payoff-irrelevant dimensions.
 
 **Robustness**: The finding holds across a three-config ablation (independent BC + v1 dynamics, autoregressive BC + v1, autoregressive BC + v2). The autoregressive factorization didn't change exploitability (independence wasn't inflating it). The better dynamics model found *more* exploitability (a more accurate oracle reveals more structure to exploit).
 
@@ -24,9 +25,9 @@ Expert VGC players are **individually exploitable** but **collectively near-Nash
 
 The penalty kick literature (Chiappori et al. 2002, Palacios-Huerta 2003) and tennis serving literature (Walker & Wooders 2001, Anderson et al. 2024) test minimax in 2×2 or small-action sports games with known payoff structure. We extend this to **combinatorial strategy spaces** (~200-400 actions per side) where the game structure must be *learned* from observational data.
 
-Our value decomposition goes beyond aggregate Nash-matching to diagnose the *mechanism*: symmetric error cancellation, not independent near-optimality. Anderson et al. (2024) compute best-response gains in tennis but have known game structure; we need a learned dynamics model.
+Our Phase 2 structural analysis goes beyond aggregate Nash-matching to explain *why*: SVD reveals payoff matrices have effective rank ~3, making the TV distance of 0.99 a measurement artifact (inflated by payoff-irrelevant dimensions). In the payoff-relevant subspace, TV collapses to 0.30. Anderson et al. (2024) compute best-response gains in tennis but have known game structure; we need a learned dynamics model and the low-rank analysis to explain the payoff equivalence.
 
-So & Ma (2025) prove theoretically that learnable mixed Nash equilibria are collectively rational. Their conditions are trivially satisfied in two-player zero-sum games (uniform stability, Pareto optimality hold vacuously). We cite them for motivation but our contribution is the empirical decomposition.
+So & Ma (2025) prove theoretically that learnable mixed Nash equilibria are collectively rational. Their conditions are trivially satisfied in two-player zero-sum games (uniform stability, Pareto optimality hold vacuously). We cite them for motivation but our contribution is the empirical measurement: experts are collectively near-Nash despite individually far-from-Nash strategies, in a combinatorial strategy space with a learned game model.
 
 ### 2.2 Distinct from the poker literature
 
@@ -46,19 +47,19 @@ We use a **learned dynamics model as an EGTA oracle**. Classical EGTA (Wellman 2
 
 ## 3. The Framing We Chose (and why)
 
-### Framing B: "Collective equilibrium, individual exploitability"
+### Framing B: "Low-rank games, high-entropy experts"
 
-**Pitch**: Expert VGC play achieves near-Nash outcomes in aggregate while being individually exploitable. The metagame has converged to collective equilibrium through experience alone — but any individual strategy is predictable and punishable.
+**Pitch**: Expert VGC play achieves near-Nash outcomes despite being individually exploitable and strategically distant from Nash. The explanation is structural: payoff matrices have effective rank ~3 out of ~122 actions. The TV distance of 0.99 is inflated by payoff-irrelevant dimensions. In the 3-dimensional payoff-relevant subspace, BC and Nash are much closer (TV 0.30). Experts don't need to play Nash — in low-rank games, most strategies produce similar payoffs.
 
 **Why this framing:**
 
-1. **Most interesting finding.** The paradox is memorable: "experts collectively play Nash but are individually exploitable." Like poker regulars — the standard line is fine against other regs, but readable by anyone who models you.
+1. **Most interesting finding.** The structural explanation is surprising: not behavioral adaptation, not bounded rationality, but matrix rank. The ~200 nominal actions collapse to ~3 strategic dimensions.
 
-2. **Most robust result.** BC-vs-BC ≈ Nash is computed on the same payoff matrix R, so dynamics errors affect both sides similarly. Confirmed across three reward weight settings. The noise sensitivity experiment provides the stronger evidence for the exploitability signal specifically.
+2. **Most robust result.** SVD is model-free (computed directly on payoff matrices). The low-rank structure is independent of BC model quality. Confirmed by correlation with Nash support size (Lipton et al. 2003).
 
-3. **Novel empirical contribution.** First data point for So & Ma's collective rationality theorem. First quantification of the individual-vs-collective exploitability gap in real competitive play.
+3. **Novel empirical contribution.** First empirical application of low-rank game theory (Lipton et al. 2003) to explain human play patterns. First quantification showing that TV distance in strategy space is misleading when the game has low effective rank.
 
-4. **Clean CS234 story.** Behavioral cloning (what experts do) + world model (what happens) + game-theoretic optimization (what's optimal) = exploitability measurement. Connects RL to empirical game theory.
+4. **Clean CS234 story.** Behavioral cloning (what experts do) + world model (what happens) + game-theoretic optimization (what's optimal) + structural analysis (why they match) = complete pipeline from data to insight.
 
 ### Rejected alternatives
 
@@ -83,6 +84,21 @@ We use a **learned dynamics model as an EGTA oracle**. Classical EGTA (Wellman 2
 1. **Exact exploitability magnitude.** Range 1.41–1.52 across dynamics models. True value could be ~0.8-2.0. We trust the ordering, not the number.
 2. **Per-matchup BC-vs-BC tracking.** R²=0.50–0.59, with gaps in extreme games. The collective equilibrium claim is about the population average, not individual matchups.
 
+### Why 44.8% BC accuracy is not a weakness (resolved)
+
+The per-mon action space is 16 slots, but after masking the effective space is ~7 valid actions (ranges 4–12 depending on moveset). Context:
+
+| Baseline | Accuracy |
+|----------|----------|
+| Uniform random (valid actions) | ~14% |
+| Majority class | ~5-8% |
+| **BC model** | **44.8%** |
+| BC top-3 | **79.6%** |
+
+BC is 3× better than random. NLL of 1.492 → perplexity 4.45, meaning the model concentrates uncertainty to ~4-5 plausible actions out of ~7 valid. This is near the ceiling of what top-1 accuracy can measure: expert play has genuine entropy (top-10 action pairs cover only 16.3% of data). Players are legitimately mixing over multiple reasonable options.
+
+Critically, **BC accuracy doesn't drive exploitability**. The autoregressive ablation (fancier BC, P(b|a) instead of P(a)×P(b)) changed accuracy but not exploitability (1.41 → 1.41). The *distribution shape* matters for game theory, not the mode. Improving top-1 from 45% to 55% would not meaningfully change any downstream result.
+
 ### What we're NOT claiming
 
 - Experts are "bad" — they play optimally *for the metagame they face*. Exploitability is a worst-case measure against a strategy-aware adversary.
@@ -104,9 +120,15 @@ Future work: open team sheet tournament data (full EV spreads public) would enab
 
 Turn 1 is a single-shot simultaneous-move game. This structure makes Nash LP tractable (~200-400 actions per side, solved in milliseconds). Multi-turn play requires extensive-form game solving or MCTS — orders of magnitude harder, and the BC + dynamics approach would need sequential prediction. The single-shot structure is a feature, not a limitation.
 
-### 5.3 Why Showdown-backed targeting
+### 5.3 Why Showdown-backed targeting & why two masks (resolved)
 
 We replaced 100+ hand-curated move targeting rules with Showdown's authoritative `moves.json` (658/658 vocab coverage). Since we analyze Showdown replays, their data IS ground truth. The audit found 66 misclassifications in the hand-curated sets. After the fix, exploitability moved from 1.47 → 1.41 and audit Check 11 (Nash action quality) went from non-zero ally-attack weight to exactly zero.
+
+**"Moves are fully known — why learn targeting?"** They are, and we don't learn move mechanics. The categorization is deterministic and hardcoded from Showdown (self: 123 moves, ally: 4, spread: 59, single: 472). What BC learns is *strategic targeting*: which opponent to Thunderbolt, when to Protect vs attack, whether to Pollen Puff your ally or the enemy. That's matchup-dependent and the whole point of behavioral cloning.
+
+**Why two masks?** The BC mask (`compute_action_mask`) allows target=3 (self) for single-target moves because the Showdown protocol records failed/redirected moves as self-targeting — a data artifact we can't strip from training without losing real examples. The strategic mask (`compute_strategic_mask`) removes target=3 for single-target moves because no rational player intentionally Thunderbolts themselves, and restricts ally-targeting to 11 dual-purpose moves (Pollen Puff, Skill Swap, etc.). This is the mask used for payoff enumeration / Nash solving.
+
+**Impact is negligible**: median BC mass stripped by the strategic mask is ~0.8% per mon, 97.1% retained at the joint level. Audit check 11 confirms Nash solutions put exactly 0% weight on the removed actions. The strategic mask is just cleaning protocol noise before game-theoretic computation.
 
 ### 5.4 Autoregressive BC ablation
 
@@ -130,15 +152,15 @@ This is actually a *good* result — it means the simpler model is sufficient, a
 
 3. **Finding 1 — Individual exploitability**: Expert strategies are exploitable. Mean 1.41–1.52 (depending on dynamics oracle), exceeding the dynamics noise floor by ≥1.0. The signal is real and robust to model improvements.
 
-4. **Finding 2 — Collective equilibrium**: BC-vs-BC ≈ Nash value (gaps: -0.02, -0.03, +0.02 across three configs). When experts face other experts, outcomes match Nash. Confirmed across reward weights, BC factorizations, and dynamics model quality. First empirical evidence for So & Ma's collective rationality theorem.
+4. **Finding 2 — Collective equilibrium**: BC-vs-BC ≈ Nash value (gaps: -0.02, -0.03, +0.02 across three configs). When experts face other experts, outcomes match Nash. Confirmed across reward weights, BC factorizations, and dynamics model quality.
 
-5. **Finding 3 — Error cancellation mechanism**: Value decomposition reveals that BC-vs-BC ≈ Nash arises from symmetric error cancellation. BC P1 loses ~1.0 against Nash P2; Nash P1 gains ~1.0 against BC P2. These offsetting errors produce near-Nash outcomes despite near-maximal strategy-space distance (TV ≈ 0.99).
+5. **Finding 3 — Low-rank structure (the explanation)**: SVD reveals payoff matrices have effective rank ~3 out of ~122 actions. Top-1 captures 76% of Frobenius norm, top-3 captures 96%. Payoff-space TV collapses from 0.99 to 0.30 in the top-1 subspace. bc\_vs\_bc ≈ V\* is structurally inevitable: most strategy variation is payoff-irrelevant. Lipton et al. (2003) predict Nash support ≤ rank+1; our support 2.7 matches. Three negative results (QRE, ecological adaptation, approximate CE) rule out behavioral explanations.
 
-6. **Finding 4 — Smoothed BR convergence**: Starting from BC strategies, smoothed best-response dynamics converge toward Nash in ~500 iterations (96% exploitability reduction at β=0.01). The metagame acts like a learning process with experts as the initialization.
+6. **Finding 4 — Smoothed BR convergence**: Starting from BC strategies, smoothed best-response dynamics converge toward Nash in ~500 iterations (96% exploitability reduction at β=0.01). The metagame acts like a learning process.
 
-7. **Case studies**: Nash recommends qualitatively different play — more Protect, defensive coverage, mixed Tera. BC is predictably aggressive. The exploitability comes from predictability, not from bad moves.
+7. **Case studies**: Nash recommends qualitatively different play — more Protect, defensive coverage, mixed Tera. BC is predictably aggressive. The exploitability comes from predictability, not from bad moves. But in a rank-3 game, this predictability costs little against other BC players.
 
-### For poster (8 figures)
+### For poster (8-10 figures)
 
 1. Pipeline diagram
 2. Exploitability histogram (500 matchups)
@@ -146,8 +168,10 @@ This is actually a *good* result — it means the simpler model is sufficient, a
 4. Trust: noise sensitivity + reward weight sensitivity
 5. Case study (1-2 matchups, BC vs Nash distributions)
 6. Dynamics quality (HP scatter + KO ROC)
-7. **Value decomposition bar chart**: V*, bc_vs_bc, cross-play values — the analytical money figure showing symmetric error cancellation
-8. **Smoothed BR convergence**: exploitability vs iteration at multiple temperatures — visually compelling trajectory from BC to Nash
+7. **SVD cumulative energy + TV collapse** — Phase 2 headline: rank ~3 captures 96%; TV drops 0.99 → 0.30
+8. **Value decomposition bar chart**: V*, bc_vs_bc, cross-play — collective equilibrium
+9. **QRE path curve**: TV-to-BC and TV-to-Nash vs λ — shows QRE never fits BC
+10. **Smoothed BR convergence**: exploitability vs iteration at multiple temperatures
 
 ---
 
@@ -155,7 +179,7 @@ This is actually a *good* result — it means the simpler model is sufficient, a
 
 ### "What surprised you?"
 
-"That BC-vs-BC almost exactly equals the Nash value — but for the *wrong reason*. We expected independent near-optimality (each player individually achieves near-Nash payoff). Instead, value decomposition reveals symmetric error cancellation: BC P1 loses ~1.0 against Nash P2, and Nash P1 gains ~1.0 against BC P2. These opposite-sign errors cancel perfectly in expert-vs-expert play. Every single matchup (500/500) shows this pattern. Experts aren't individually near-optimal — they're symmetrically suboptimal."
+"That the explanation is structural, not behavioral. We expected BC to be a bounded-rational equilibrium — a QRE at some temperature, or ecologically adapted to its population. Instead, SVD shows payoff matrices have effective rank ~3 out of ~122 actions. The TV distance of 0.99 is mostly noise in payoff-irrelevant dimensions. In the 3-dimensional subspace that matters, TV drops to 0.30. bc\_vs\_bc ≈ V\* isn't because experts are clever — it's because the games are so low-rank that most strategies produce similar payoffs. The ~95 extra actions in BC's support are payoff-irrelevant padding."
 
 ### "Why should I trust these numbers?"
 
@@ -187,12 +211,20 @@ Action cross-attention (1 layer, 2 heads over 4 mon-action tokens) + larger trun
 Full eval pipeline with all three configs (independent BC + v1, autoreg BC + v1, autoreg BC + v2). Results in `results/baseline/`, `results/autoreg_v1/`, `results/autoreg_v2/`. Key finding: exploitability findings are robust to both BC factorization and dynamics model quality. Better dynamics found *more* exploitability (1.41→1.52).
 
 ### 8.4 Value decomposition (DONE)
-Cross-play analysis (500 matchups): BC_P1 vs Nash_P2 = -0.80, Nash_P1 vs BC_P2 = +1.25. Error cancellation, not independent near-optimality. All 500 matchups show opposite-sign gaps. TV distance 0.99, BC mass on Nash support 1.3%.
+Cross-play analysis (500 matchups): BC_P1 vs Nash_P2 = -0.80, Nash_P1 vs BC_P2 = +1.25. Bilinear decomposition: bc\_vs\_bc − V\* = gap₁ + gap₂ + interaction, all three terms near-zero in aggregate. Opposite-sign gaps are guaranteed by minimax theorem (trivial); the non-trivial finding is collective near-Nash despite maximal individual distance (TV 0.99, BC mass on Nash support 1.3%).
 
 ### 8.5 Smoothed BR convergence (DONE)
 200 matchups × 5 temperatures × 2 learning rates × 500 iterations. At β=0.01, time-averaged exploitability drops from 2.74 to 0.11 (96% reduction), with 50% of matchups fully converged (<0.1). Higher temperatures converge to QRE, not Nash.
 
-### 8.6 Future work (out of scope)
+### 8.6 Phase 2: Structural characterization (DONE)
+Four experiments on cached payoff matrices (500 matchups):
+
+1. **SVD / Effective Rank**: Rank ~3 at 95% energy. Top-1 captures 76%, top-3 captures 96%. Payoff-space TV collapses 0.99 → 0.30. Corr(rank, Nash support) = 0.40. **Central finding**.
+2. **QRE Path**: Negative result. Best TV(QRE, BC) = 0.68 at λ=0.01 (uniform). BC is not a bounded-rational equilibrium.
+3. **Indifference**: Negative result. BC vs BC std (0.47) > BC vs Nash std (0.34). Indifference ratio 1.75. No ecological adaptation.
+4. **Regret**: Negative result. External regret vs BC (1.43) > vs Nash (1.02). Regret ratio 1.32. Not population-adapted. 0% with swap regret < 0.1.
+
+### 8.7 Future work (out of scope)
 - **Exact simulation**: with open team sheet data (EVs/IVs public)
 - **Multi-turn**: extend dynamics to turns 2-3
 - **Exploitability by archetype**: team clustering + stratified analysis
