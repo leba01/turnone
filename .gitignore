@@ -1,0 +1,12 @@
+# Data (large JSONL files, symlinks) and training outputs
+/data/
+/runs/
+
+# Python
+__pycache__/
+*.pyc
+.venv
+
+# IDE / tools
+.claude/
+*.egg-info/

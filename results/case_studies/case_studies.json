@@ -1,0 +1,367 @@
+{
+  "5711": {
+    "dataset_idx": 5711,
+    "p1_leads": {
+      "lead_a": "Tornadus (Prankster)",
+      "lead_b": "Chi-Yu (Beads of Ruin)"
+    },
+    "p2_leads": {
+      "lead_a": "Scream Tail (Protosynthesis)",
+      "lead_b": "Gothitelle (Shadow Tag)"
+    },
+    "n_actions_p1": 156,
+    "n_actions_p2": 390,
+    "game_value": 0.06602230329284677,
+    "bc_exploitability": 0.025577350571869724,
+    "nash_support_size": 2,
+    "bc_top_actions": [
+      {
+        "action": "[Tailwind -> self] + [Heat Wave -> self] (none)",
+        "bc_prob": 0.22100915957294925,
+        "nash_prob": 0.0
+      },
+      {
+        "action": "[Bleakwind Storm -> self] + [Heat Wave -> self] (none)",
+        "bc_prob": 0.1456785808847515,
+        "nash_prob": 0.0
+      },
+      {
+        "action": "[Tailwind -> self] + [Heat Wave -> self] (tera_B)",
+        "bc_prob": 0.13588378062433473,
+        "nash_prob": 0.0
+      },
+      {
+        "action": "[Bleakwind Storm -> self] + [Heat Wave -> self] (tera_B)",
+        "bc_prob": 0.08956803584456895,
+        "nash_prob": 0.0
+      },
+      {
+        "action": "[Sunny Day -> self] + [Heat Wave -> self] (none)",
+        "bc_prob": 0.044291710182603646,
+        "nash_prob": 0.0
+      }
+    ],
+    "nash_top_actions": [
+      {
+        "action": "[Sunny Day -> self] + [Overheat -> self] (tera_A)",
+        "nash_prob": 0.8362369554175234,
+        "bc_prob": 1.0025280053359949e-06
+      },
+      {
+        "action": "[Icy Wind -> self] + [Dark Pulse -> ally] (tera_A)",
+        "nash_prob": 0.16376304458247667,
+        "bc_prob": 5.3796395707038734e-08
+      },
+      {
+        "action": "[Tailwind -> self] + [Tera Blast -> self] (tera_B)",
+        "nash_prob": 0.0,
+        "bc_prob": 9.637830614089851e-05
+      },
+      {
+        "action": "[Tailwind -> self] + [Tera Blast -> self] (tera_A)",
+        "nash_prob": 0.0,
+        "bc_prob": 2.2801454084090313e-06
+      },
+      {
+        "action": "[Tailwind -> self] + [Tera Blast -> ally] (tera_A)",
+        "nash_prob": 0.0,
+        "bc_prob": 3.089759342523705e-06
+      }
+    ],
+    "regimes": [
+      "near_nash"
+    ]
+  },
+  "6536": {
+    "dataset_idx": 6536,
+    "p1_leads": {
+      "lead_a": "Miraidon (Hadron Engine)",
+      "lead_b": "Sneasler (Unburden)"
+    },
+    "p2_leads": {
+      "lead_a": "Rillaboom (Grassy Surge)",
+      "lead_b": "Ogerpon-Cornerstone (Sturdy)"
+    },
+    "n_actions_p1": 507,
+    "n_actions_p2": 480,
+    "game_value": 0.0457954569441798,
+    "bc_exploitability": 0.6301767592504159,
+    "nash_support_size": 9,
+    "bc_top_actions": [
+      {
+        "action": "[Volt Switch -> opp_A] + [Fake Out -> opp_A] (none)",
+        "bc_prob": 0.06485025655996968,
+        "nash_prob": 0.0
+      },
+      {
+        "action": "[Volt Switch -> opp_A] + [Fake Out -> opp_B] (none)",
+        "bc_prob": 0.05825315350532974,
+        "nash_prob": 0.0
+      },
+      {
+        "action": "[Volt Switch -> opp_B] + [Fake Out -> opp_A] (none)",
+        "bc_prob": 0.05496636044783675,
+        "nash_prob": 0.0
+      },
+      {
+        "action": "[Volt Switch -> opp_A] + [Toxic Spikes -> self] (none)",
+        "bc_prob": 0.04969899700179227,
+        "nash_prob": 0.0
+      },
+      {
+        "action": "[Volt Switch -> opp_B] + [Fake Out -> opp_B] (none)",
+        "bc_prob": 0.04937472883913934,
+        "nash_prob": 0.0
+      }
+    ],
+    "nash_top_actions": [
+      {
+        "action": "[Volt Switch -> self] + [Fake Out -> self] (none)",
+        "nash_prob": 0.7061318915596546,
+        "bc_prob": 3.3934652708766793e-06
+      },
+      {
+        "action": "[Electro Drift -> opp_B] + [Dire Claw -> self] (tera_A)",
+        "nash_prob": 0.0929500785907586,
+        "bc_prob": 2.323947291310307e-06
+      },
+      {
+        "action": "[Dazzling Gleam -> self] + [Fake Out -> ally] (tera_A)",
+        "nash_prob": 0.0682435339803665,
+        "bc_prob": 6.44369205949664e-06
+      },
+      {
+        "action": "[Draco Meteor -> opp_B] + [Close Combat -> ally] (tera_A)",
+        "nash_prob": 0.031653537266832295,
+        "bc_prob": 7.587776267944195e-06
+      },
+      {
+        "action": "[Electro Drift -> opp_A] + [Close Combat -> opp_B] (tera_A)",
+        "nash_prob": 0.026672109475335874,
+        "bc_prob": 6.676743500802573e-05
+      }
+    ],
+    "regimes": [
+      "large_support"
+    ]
+  },
+  "9194": {
+    "dataset_idx": 9194,
+    "p1_leads": {
+      "lead_a": "Calyrex-Shadow (As One Spectrier)",
+      "lead_b": "Incineroar (Intimidate)"
+    },
+    "p2_leads": {
+      "lead_a": "Bisharp (Defiant)",
+      "lead_b": "Staraptor (Intimidate)"
+    },
+    "n_actions_p1": 336,
+    "n_actions_p2": 624,
+    "game_value": -0.5665975909073863,
+    "bc_exploitability": 1.3769589672074818,
+    "nash_support_size": 3,
+    "bc_top_actions": [
+      {
+        "action": "[Nasty Plot -> self] + [Fake Out -> opp_A] (none)",
+        "bc_prob": 0.31710619432569365,
+        "nash_prob": 0.0
+      },
+      {
+        "action": "[Nasty Plot -> self] + [Fake Out -> opp_B] (none)",
+        "bc_prob": 0.2397266325512552,
+        "nash_prob": 0.0
+      },
+      {
+        "action": "[Astral Barrage -> self] + [Fake Out -> opp_A] (none)",
+        "bc_prob": 0.09434806609713109,
+        "nash_prob": 0.0
+      },
+      {
+        "action": "[Astral Barrage -> self] + [Fake Out -> opp_B] (none)",
+        "bc_prob": 0.07132545682774721,
+        "nash_prob": 0.0
+      },
+      {
+        "action": "[Protect -> self] + [Fake Out -> opp_A] (none)",
+        "bc_prob": 0.0408307650599726,
+        "nash_prob": 0.0
+      }
+    ],
+    "nash_top_actions": [
+      {
+        "action": "[Protect -> self] + [Flare Blitz -> self] (none)",
+        "nash_prob": 0.8235253836487282,
+        "bc_prob": 5.2166916325041054e-05
+      },
+      {
+        "action": "[Psychic -> opp_B] + [Knock Off -> self] (tera_A)",
+        "nash_prob": 0.15170430036348304,
+        "bc_prob": 4.511064915838463e-07
+      },
+      {
+        "action": "[Astral Barrage -> self] + [Flare Blitz -> self] (tera_A)",
+        "nash_prob": 0.024770315987788793,
+        "bc_prob": 9.379339203233972e-06
+      },
+      {
+        "action": "[Protect -> self] + [Fake Out -> self] (tera_B)",
+        "nash_prob": 0.0,
+        "bc_prob": 1.0633437875877017e-06
+      },
+      {
+        "action": "[Protect -> self] + [Flare Blitz -> opp_A] (none)",
+        "nash_prob": 0.0,
+        "bc_prob": 0.0004152270865256669
+      }
+    ],
+    "regimes": [
+      "median_exploit"
+    ]
+  },
+  "27933": {
+    "dataset_idx": 27933,
+    "p1_leads": {
+      "lead_a": "Calyrex-Shadow (As One Spectrier)",
+      "lead_b": "Roaring Moon (Protosynthesis)"
+    },
+    "p2_leads": {
+      "lead_a": "Incineroar (Intimidate)",
+      "lead_b": "Amoonguss (Regenerator)"
+    },
+    "n_actions_p1": 210,
+    "n_actions_p2": 390,
+    "game_value": 0.24910451545729306,
+    "bc_exploitability": 0.5998151502726363,
+    "nash_support_size": 2,
+    "bc_top_actions": [
+      {
+        "action": "[Protect -> self] + [Protect -> self] (none)",
+        "bc_prob": 0.344165866280165,
+        "nash_prob": 0.0
+      },
+      {
+        "action": "[Astral Barrage -> self] + [Protect -> self] (none)",
+        "bc_prob": 0.15070549727976362,
+        "nash_prob": 0.0
+      },
+      {
+        "action": "[Protect -> self] + [Protect -> self] (tera_A)",
+        "bc_prob": 0.12730143291963145,
+        "nash_prob": 0.0
+      },
+      {
+        "action": "[Protect -> self] + [Protect -> self] (tera_B)",
+        "bc_prob": 0.05716310314497429,
+        "nash_prob": 0.0
+      },
+      {
+        "action": "[Astral Barrage -> self] + [Protect -> self] (tera_A)",
+        "bc_prob": 0.055743545866231065,
+        "nash_prob": 0.0
+      }
+    ],
+    "nash_top_actions": [
+      {
+        "action": "[Draining Kiss -> opp_B] + [Acrobatics -> self] (tera_A)",
+        "nash_prob": 0.7591824539342192,
+        "bc_prob": 5.925996739084669e-06
+      },
+      {
+        "action": "[Draining Kiss -> self] + [Knock Off -> opp_B] (tera_B)",
+        "nash_prob": 0.24081754606578087,
+        "bc_prob": 2.223400057813711e-05
+      },
+      {
+        "action": "[Protect -> self] + [Tailwind -> self] (none)",
+        "nash_prob": 0.0,
+        "bc_prob": 0.019388051213554917
+      },
+      {
+        "action": "[Protect -> self] + [Protect -> self] (tera_B)",
+        "nash_prob": 0.0,
+        "bc_prob": 0.05716310314497429
+      },
+      {
+        "action": "[Protect -> self] + [Protect -> self] (tera_A)",
+        "nash_prob": 0.0,
+        "bc_prob": 0.12730143291963145
+      }
+    ],
+    "regimes": [
+      "small_support"
+    ]
+  },
+  "33838": {
+    "dataset_idx": 33838,
+    "p1_leads": {
+      "lead_a": "Calyrex-Shadow (As One Spectrier)",
+      "lead_b": "Flutter Mane (Protosynthesis)"
+    },
+    "p2_leads": {
+      "lead_a": "Dialga-Origin (Telepathy)",
+      "lead_b": "Ursaluna (Guts)"
+    },
+    "n_actions_p1": 390,
+    "n_actions_p2": 390,
+    "game_value": -0.33566630366941397,
+    "bc_exploitability": 4.239096040470206,
+    "nash_support_size": 3,
+    "bc_top_actions": [
+      {
+        "action": "[Dark Pulse -> opp_A] + [Taunt -> opp_A] (none)",
+        "bc_prob": 0.10121177270699817,
+        "nash_prob": 0.0
+      },
+      {
+        "action": "[Astral Barrage -> self] + [Taunt -> opp_A] (none)",
+        "bc_prob": 0.07326615566221334,
+        "nash_prob": 0.0
+      },
+      {
+        "action": "[Tera Blast -> opp_A] + [Taunt -> opp_A] (none)",
+        "bc_prob": 0.059107963109132244,
+        "nash_prob": 0.0
+      },
+      {
+        "action": "[Dark Pulse -> opp_A] + [Shadow Ball -> opp_A] (none)",
+        "bc_prob": 0.05173573784712304,
+        "nash_prob": 0.0
+      },
+      {
+        "action": "[Dark Pulse -> opp_B] + [Taunt -> opp_A] (none)",
+        "bc_prob": 0.04983526181942996,
+        "nash_prob": 0.0
+      }
+    ],
+    "nash_top_actions": [
+      {
+        "action": "[Psyshock -> self] + [Protect -> self] (none)",
+        "nash_prob": 0.7217943007184865,
+        "bc_prob": 2.191272242494429e-06
+      },
+      {
+        "action": "[Psyshock -> self] + [Shadow Ball -> self] (none)",
+        "nash_prob": 0.23538517688104976,
+        "bc_prob": 2.93438761374135e-07
+      },
+      {
+        "action": "[Psyshock -> self] + [Shadow Ball -> opp_B] (tera_B)",
+        "nash_prob": 0.042820522400463745,
+        "bc_prob": 3.4035746665900707e-07
+      },
+      {
+        "action": "[Dark Pulse -> self] + [Protect -> self] (tera_B)",
+        "nash_prob": 0.0,
+        "bc_prob": 3.293532600716285e-07
+      },
+      {
+        "action": "[Dark Pulse -> self] + [Shadow Ball -> opp_A] (none)",
+        "nash_prob": 0.0,
+        "bc_prob": 0.0005337937750122171
+      }
+    ],
+    "regimes": [
+      "most_exploitable"
+    ]
+  }
+}

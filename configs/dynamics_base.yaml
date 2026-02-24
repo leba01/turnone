@@ -1,0 +1,25 @@
+model:
+  d_model: 128
+  n_layers: 4
+  n_heads: 4
+  d_ff: 512
+  dropout: 0.1
+  d_action: 32
+  d_hidden: 256
+  n_mlp_layers: 3
+
+training:
+  seed: 42
+  batch_size: 512
+  max_epochs: 50
+  patience: 10
+  lr: 3.0e-4
+  weight_decay: 0.01
+  lambda_ko: 3.0
+  lambda_field: 0.5
+  require_both_actions: true
+  num_workers: 4
+
+data:
+  split_dir: data/assembled
+  vocab_path: null

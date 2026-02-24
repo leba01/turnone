@@ -1,0 +1,164 @@
+{
+  "n_examples": 166215,
+  "mi_bits": 0.018413,
+  "mi_nats": 0.012763,
+  "h_a_bits": 3.579918,
+  "h_b_bits": 3.654642,
+  "h_joint_bits": 7.216147,
+  "normalized_mi": 0.002552,
+  "top_10_pair_mass": 0.1627,
+  "top_10_pairs": [
+    {
+      "a": 15,
+      "b": 3,
+      "count": 3379,
+      "frac": 0.0203
+    },
+    {
+      "a": 3,
+      "b": 15,
+      "count": 3275,
+      "frac": 0.0197
+    },
+    {
+      "a": 15,
+      "b": 11,
+      "count": 3091,
+      "frac": 0.0186
+    },
+    {
+      "a": 11,
+      "b": 15,
+      "count": 2799,
+      "frac": 0.0168
+    },
+    {
+      "a": 15,
+      "b": 7,
+      "count": 2789,
+      "frac": 0.0168
+    },
+    {
+      "a": 3,
+      "b": 3,
+      "count": 2510,
+      "frac": 0.0151
+    },
+    {
+      "a": 15,
+      "b": 15,
+      "count": 2384,
+      "frac": 0.0143
+    },
+    {
+      "a": 11,
+      "b": 11,
+      "count": 2370,
+      "frac": 0.0143
+    },
+    {
+      "a": 11,
+      "b": 7,
+      "count": 2266,
+      "frac": 0.0136
+    },
+    {
+      "a": 7,
+      "b": 15,
+      "count": 2186,
+      "frac": 0.0132
+    }
+  ],
+  "category_breakdown": {
+    "ally_self": {
+      "n": 435,
+      "frac": 0.0026170923201877085,
+      "mi_bits": 0.073537,
+      "normalized_mi": 0.024657
+    },
+    "ally_single": {
+      "n": 1361,
+      "frac": 0.00818818999488614,
+      "mi_bits": 0.015633,
+      "normalized_mi": 0.003523
+    },
+    "ally_spread": {
+      "n": 952,
+      "frac": 0.0057275215834912616,
+      "mi_bits": 0.019399,
+      "normalized_mi": 0.006342
+    },
+    "self_ally": {
+      "n": 576,
+      "frac": 0.003465391210179587,
+      "mi_bits": 0.162869,
+      "normalized_mi": 0.052063
+    },
+    "self_self": {
+      "n": 20942,
+      "frac": 0.12599344222843906,
+      "mi_bits": 0.044645,
+      "normalized_mi": 0.011679
+    },
+    "self_single": {
+      "n": 30604,
+      "frac": 0.1841229732575279,
+      "mi_bits": 0.006994,
+      "normalized_mi": 0.001403
+    },
+    "self_spread": {
+      "n": 7009,
+      "frac": 0.04216827602803598,
+      "mi_bits": 0.017838,
+      "normalized_mi": 0.004829
+    },
+    "single_ally": {
+      "n": 1799,
+      "frac": 0.010823331227626869,
+      "mi_bits": 0.01057,
+      "normalized_mi": 0.002398
+    },
+    "single_self": {
+      "n": 25393,
+      "frac": 0.15277201215293446,
+      "mi_bits": 0.007038,
+      "normalized_mi": 0.001419
+    },
+    "single_single": {
+      "n": 43278,
+      "frac": 0.2603736124898475,
+      "mi_bits": 0.019161,
+      "normalized_mi": 0.003098
+    },
+    "single_spread": {
+      "n": 10204,
+      "frac": 0.06139036789700087,
+      "mi_bits": 0.012914,
+      "normalized_mi": 0.002729
+    },
+    "spread_ally": {
+      "n": 1536,
+      "frac": 0.009241043227145564,
+      "mi_bits": 0.018995,
+      "normalized_mi": 0.006639
+    },
+    "spread_self": {
+      "n": 6920,
+      "frac": 0.041632824955629755,
+      "mi_bits": 0.017138,
+      "normalized_mi": 0.004792
+    },
+    "spread_single": {
+      "n": 12084,
+      "frac": 0.07270101976355925,
+      "mi_bits": 0.011305,
+      "normalized_mi": 0.002451
+    },
+    "spread_spread": {
+      "n": 3122,
+      "frac": 0.018782901663508107,
+      "mi_bits": 0.055326,
+      "normalized_mi": 0.016289
+    }
+  }
+}
