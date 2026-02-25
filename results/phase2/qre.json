@@ -14,31 +14,48 @@
     50,
     100
   ],
+  "convergence_rates": {
+    "0.01": 1.0,
+    "0.05": 1.0,
+    "0.1": 1.0,
+    "0.25": 1.0,
+    "0.5": 1.0,
+    "1": 1.0,
+    "2": 0.93,
+    "5": 0.28,
+    "10": 0.07,
+    "25": 0.05,
+    "50": 0.045,
+    "100": 0.06
+  },
   "qre_path": {
     "0.01": {
       "lambda": 0.01,
+      "convergence_rate": 1.0,
       "tv_bc_mean": 0.6762659256681988,
       "tv_bc_median": 0.6877008273250643,
       "tv_nash_mean": 0.9768231049246097,
       "tv_nash_median": 0.9776365435259506,
       "qre_value_mean": 0.17481591764061946,
-      "exploit_mean": 2.198438314260599,
+      "exploit_mean": 2.1984383142605988,
       "exploit_median": 2.1675046619999634,
       "entropy_p1_mean": 4.786707950643907
     },
     "0.05": {
       "lambda": 0.05,
+      "convergence_rate": 1.0,
       "tv_bc_mean": 0.6776413046182549,
       "tv_bc_median": 0.6892544743394904,
       "tv_nash_mean": 0.9760869875341669,
       "tv_nash_median": 0.9769819572542985,
       "qre_value_mean": 0.1759028833242978,
-      "exploit_mean": 2.178790344837715,
+      "exploit_mean": 2.1787903448377155,
       "exploit_median": 2.150195932082612,
       "entropy_p1_mean": 4.786334441062026
     },
     "0.1": {
       "lambda": 0.1,
+      "convergence_rate": 1.0,
       "tv_bc_mean": 0.6794332510495354,
       "tv_bc_median": 0.6907215534184985,
       "tv_nash_mean": 0.9751277857178805,
@@ -50,9 +67,10 @@
     },
     "0.25": {
       "lambda": 0.25,
+      "convergence_rate": 1.0,
       "tv_bc_mean": 0.6852685050566825,
       "tv_bc_median": 0.6955675530286831,
-      "tv_nash_mean": 0.9719769470282114,
+      "tv_nash_mean": 0.9719769470282116,
       "tv_nash_median": 0.9732342015990765,
       "qre_value_mean": 0.18083369123586876,
       "exploit_mean": 2.079162232522222,
@@ -61,29 +79,32 @@
     },
     "0.5": {
       "lambda": 0.5,
-      "tv_bc_mean": 0.6962032831817556,
+      "convergence_rate": 1.0,
+      "tv_bc_mean": 0.6962032831817558,
       "tv_bc_median": 0.7088958415101879,
-      "tv_nash_mean": 0.9657716032025683,
+      "tv_nash_mean": 0.965771603202568,
       "tv_nash_median": 0.9676884965205026,
-      "qre_value_mean": 0.18577953815139922,
-      "exploit_mean": 1.951803030706205,
+      "qre_value_mean": 0.18577953815139925,
+      "exploit_mean": 1.9518030307062049,
       "exploit_median": 1.9368783479530984,
       "entropy_p1_mean": 4.749174935104917
     },
     "1": {
       "lambda": 1,
+      "convergence_rate": 1.0,
       "tv_bc_mean": 0.7209887560945495,
       "tv_bc_median": 0.7287427060528886,
       "tv_nash_mean": 0.9496622552856013,
       "tv_nash_median": 0.9529212922777953,
-      "qre_value_mean": 0.1919139063738076,
-      "exploit_mean": 1.6967031681524123,
+      "qre_value_mean": 0.19191390637380756,
+      "exploit_mean": 1.6967031681524125,
       "exploit_median": 1.709998255503502,
       "entropy_p1_mean": 4.648101840240249
     },
     "2": {
       "lambda": 2,
-      "tv_bc_mean": 0.7703551335757909,
+      "convergence_rate": 0.93,
+      "tv_bc_mean": 0.7703551335757908,
       "tv_bc_median": 0.7757868505672144,
       "tv_nash_mean": 0.9065403471773695,
       "tv_nash_median": 0.9123397376792234,
@@ -94,50 +115,55 @@
     },
     "5": {
       "lambda": 5,
+      "convergence_rate": 0.28,
       "tv_bc_mean": 0.8818344917058744,
       "tv_bc_median": 0.8954852512880026,
       "tv_nash_mean": 0.8192942817270602,
       "tv_nash_median": 0.826462734953181,
-      "qre_value_mean": 0.11201041670373943,
+      "qre_value_mean": 0.11201041670373944,
       "exploit_mean": 1.487186711031622,
       "exploit_median": 1.311838434698105,
       "entropy_p1_mean": 3.109932296278439
     },
     "10": {
       "lambda": 10,
-      "tv_bc_mean": 0.9455991016155536,
+      "convergence_rate": 0.07,
+      "tv_bc_mean": 0.9455991016155538,
       "tv_bc_median": 0.9610372391293879,
       "tv_nash_mean": 0.7894161745066686,
       "tv_nash_median": 0.808034514530199,
-      "qre_value_mean": 0.1382673356392795,
+      "qre_value_mean": 0.13826733563927948,
       "exploit_mean": 1.6429183347484235,
       "exploit_median": 1.5394889158803335,
-      "entropy_p1_mean": 1.8945941904995607
+      "entropy_p1_mean": 1.8945941904995605
     },
     "25": {
       "lambda": 25,
+      "convergence_rate": 0.05,
       "tv_bc_mean": 0.9800500471242904,
       "tv_bc_median": 0.991280735321,
       "tv_nash_mean": 0.7862858729725383,
       "tv_nash_median": 0.8269828525606477,
-      "qre_value_mean": 0.1569072672837197,
+      "qre_value_mean": 0.15690726728371973,
       "exploit_mean": 1.6685739766550665,
       "exploit_median": 1.5350739434379226,
-      "entropy_p1_mean": 0.789066822986291
+      "entropy_p1_mean": 0.7890668229862912
     },
     "50": {
       "lambda": 50,
-      "tv_bc_mean": 0.9894253660355429,
+      "convergence_rate": 0.045,
+      "tv_bc_mean": 0.9894253660355428,
       "tv_bc_median": 0.9967255036434429,
       "tv_nash_mean": 0.8015145796822383,
       "tv_nash_median": 0.866365559082277,
-      "qre_value_mean": 0.18413909356821764,
-      "exploit_mean": 1.6792932903158555,
+      "qre_value_mean": 0.18413909356821762,
+      "exploit_mean": 1.6792932903158562,
       "exploit_median": 1.517687597027721,
       "entropy_p1_mean": 0.36597871084286404
     },
     "100": {
       "lambda": 100,
+      "convergence_rate": 0.06,
       "tv_bc_mean": 0.9929571036203336,
       "tv_bc_median": 0.9981280912268392,
       "tv_nash_mean": 0.8082789402556468,
@@ -155,47 +181,47 @@
       "0.1": 0.03,
       "0.25": 0.02,
       "0.5": 0.015,
-      "1": 0.01,
+      "1": 0.015,
       "2": 0.01,
-      "5": 0.005,
+      "5": 0.0,
       "10": 0.0,
       "25": 0.0,
       "50": 0.0,
       "100": 0.0
     },
-    "tv_mean": 0.6756925596730425,
-    "exploit_mean": 2.1778204342547283,
+    "tv_mean": 0.6757999347357897,
+    "exploit_mean": 2.1794822169665635,
     "bc_exploit_mean": 2.7427993750394433,
-    "value_gap_mean": 0.32328066295662583,
+    "value_gap_mean": 0.32422069381794727,
     "bootstrap": {
       "best_fit_lambda": {
-        "mean": 0.07999999999999999,
-        "mean_ci_lo": 0.03264875000000001,
-        "mean_ci_hi": 0.14540124999999993,
+        "mean": 0.059999999999999984,
+        "mean_ci_lo": 0.030950000000000002,
+        "mean_ci_hi": 0.09635124999999997,
         "median": 0.01,
         "median_ci_lo": 0.01,
         "median_ci_hi": 0.01
       },
       "best_fit_tv": {
-        "mean": 0.6756925596730425,
-        "mean_ci_lo": 0.6655461561309719,
-        "mean_ci_hi": 0.6853662321530493,
+        "mean": 0.6757999347357897,
+        "mean_ci_lo": 0.6658544821605991,
+        "mean_ci_hi": 0.6857818782320411,
         "median": 0.6861440005549426,
         "median_ci_lo": 0.673896106594885,
-        "median_ci_hi": 0.6976798967988525
+        "median_ci_hi": 0.6977179565888219
       },
       "best_fit_exploit": {
-        "mean": 2.1778204342547283,
-        "mean_ci_lo": 2.0870963573480696,
-        "mean_ci_hi": 2.265857880406601,
+        "mean": 2.1794822169665635,
+        "mean_ci_lo": 2.0899535399326954,
+        "mean_ci_hi": 2.267845565236015,
         "median": 2.1431499632309867,
         "median_ci_lo": 2.0572325727977816,
         "median_ci_hi": 2.2953789273943066
       },
       "value_gap_at_best_fit": {
-        "mean": 0.32328066295662583,
-        "mean_ci_lo": 0.2860806375274083,
-        "mean_ci_hi": 0.3623714730936792,
+        "mean": 0.32422069381794727,
+        "mean_ci_lo": 0.2863441745409102,
+        "mean_ci_hi": 0.36365436613228297,
         "median": 0.2336007829219723,
         "median_ci_lo": 0.20652137649724261,
         "median_ci_hi": 0.2947495734855294
@@ -226,6 +252,17 @@
       "best_fit_qre_value": -0.4466991819036984
     },
     {
+      "idx": 42271,
+      "n1": 105,
+      "n2": 105,
+      "game_value": 0.030412330634831286,
+      "bc_exploit_total": 2.1909149681465037,
+      "best_fit_lambda": 0.01,
+      "best_fit_tv": 0.47235215283278026,
+      "best_fit_exploit": 1.994174101983794,
+      "best_fit_qre_value": -0.29766882255325616
+    },
+    {
       "idx": 29116,
       "n1": 120,
       "n2": 120,
@@ -237,15 +274,26 @@
       "best_fit_qre_value": 2.9122715149501914
     },
     {
-      "idx": 42271,
-      "n1": 105,
-      "n2": 105,
-      "game_value": 0.030412330634831286,
-      "bc_exploit_total": 2.1909149681465037,
+      "idx": 27933,
+      "n1": 108,
+      "n2": 126,
+      "game_value": 0.15945062063290444,
+      "bc_exploit_total": 1.9998936359723867,
       "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.47235215283278026,
-      "best_fit_exploit": 1.994174101983794,
-      "best_fit_qre_value": -0.29766882255325616
+      "best_fit_tv": 0.6786905863692494,
+      "best_fit_exploit": 1.9137310924486963,
+      "best_fit_qre_value": 0.4713768018114444
+    },
+    {
+      "idx": 31584,
+      "n1": 147,
+      "n2": 108,
+      "game_value": -0.7711967993272206,
+      "bc_exploit_total": 2.7302470893314754,
+      "best_fit_lambda": 0.01,
+      "best_fit_tv": 0.7291831050885975,
+      "best_fit_exploit": 2.920368392996597,
+      "best_fit_qre_value": 0.06532128245152956
     },
     {
       "idx": 33888,
@@ -268,28 +316,6 @@
       "best_fit_tv": 0.639287024524003,
       "best_fit_exploit": 1.6502962453584358,
       "best_fit_qre_value": -1.0549728875931594
-    },
-    {
-      "idx": 31584,
-      "n1": 147,
-      "n2": 108,
-      "game_value": -0.7711967993272206,
-      "bc_exploit_total": 2.7302470893314754,
-      "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.7291831050885975,
-      "best_fit_exploit": 2.920368392996597,
-      "best_fit_qre_value": 0.06532128245152956
-    },
-    {
-      "idx": 27933,
-      "n1": 108,
-      "n2": 126,
-      "game_value": 0.15945062063290444,
-      "bc_exploit_total": 1.9998936359723867,
-      "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.6786905863692494,
-      "best_fit_exploit": 1.9137310924486963,
-      "best_fit_qre_value": 0.4713768018114444
     },
     {
       "idx": 39271,
@@ -369,17 +395,6 @@
       "best_fit_qre_value": 0.1668856147372827
     },
     {
-      "idx": 41242,
-      "n1": 126,
-      "n2": 126,
-      "game_value": -0.162926831876891,
-      "bc_exploit_total": 4.251167294917668,
-      "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.6773056812315044,
-      "best_fit_exploit": 3.3718850357814976,
-      "best_fit_qre_value": 0.4890544013460526
-    },
-    {
       "idx": 18871,
       "n1": 126,
       "n2": 90,
@@ -389,6 +404,17 @@
       "best_fit_tv": 0.6551002066516478,
       "best_fit_exploit": 2.0110890392702228,
       "best_fit_qre_value": 0.5959142859468809
+    },
+    {
+      "idx": 41242,
+      "n1": 126,
+      "n2": 126,
+      "game_value": -0.162926831876891,
+      "bc_exploit_total": 4.251167294917668,
+      "best_fit_lambda": 0.01,
+      "best_fit_tv": 0.6773056812315044,
+      "best_fit_exploit": 3.3718850357814976,
+      "best_fit_qre_value": 0.4890544013460526
     },
     {
       "idx": 39766,
@@ -413,15 +439,15 @@
       "best_fit_qre_value": 2.7129666456552375
     },
     {
-      "idx": 21993,
-      "n1": 120,
-      "n2": 144,
-      "game_value": 0.36656622591321075,
-      "bc_exploit_total": 2.592505697192731,
+      "idx": 2191,
+      "n1": 126,
+      "n2": 147,
+      "game_value": 0.058458419669569085,
+      "bc_exploit_total": 1.782384100232731,
       "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.6719630917711216,
-      "best_fit_exploit": 2.0646377719454767,
-      "best_fit_qre_value": 0.5752363815681573
+      "best_fit_tv": 0.613127745774138,
+      "best_fit_exploit": 1.6352233970731342,
+      "best_fit_qre_value": 0.2629740060422726
     },
     {
       "idx": 22345,
@@ -435,15 +461,15 @@
       "best_fit_qre_value": 0.746806818982664
     },
     {
-      "idx": 2191,
-      "n1": 126,
-      "n2": 147,
-      "game_value": 0.058458419669569085,
-      "bc_exploit_total": 1.782384100232731,
+      "idx": 21993,
+      "n1": 120,
+      "n2": 144,
+      "game_value": 0.36656622591321075,
+      "bc_exploit_total": 2.592505697192731,
       "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.613127745774138,
-      "best_fit_exploit": 1.6352233970731342,
-      "best_fit_qre_value": 0.2629740060422726
+      "best_fit_tv": 0.6719630917711216,
+      "best_fit_exploit": 2.0646377719454767,
+      "best_fit_qre_value": 0.5752363815681573
     },
     {
       "idx": 18127,
@@ -534,15 +560,15 @@
       "best_fit_qre_value": -0.622805155327875
     },
     {
-      "idx": 13819,
-      "n1": 147,
-      "n2": 120,
-      "game_value": -1.665172487624656,
-      "bc_exploit_total": 4.11996892387513,
+      "idx": 46510,
+      "n1": 144,
+      "n2": 168,
+      "game_value": -1.3007012202153982,
+      "bc_exploit_total": 2.062927372662344,
       "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.6889308177780535,
-      "best_fit_exploit": 3.1194655055745804,
-      "best_fit_qre_value": -0.25848685993770915
+      "best_fit_tv": 0.6892671899945859,
+      "best_fit_exploit": 1.95245940464033,
+      "best_fit_qre_value": -1.478113154574799
     },
     {
       "idx": 4448,
@@ -556,15 +582,15 @@
       "best_fit_qre_value": -0.5079157620760437
     },
     {
-      "idx": 47278,
+      "idx": 13819,
       "n1": 147,
-      "n2": 105,
-      "game_value": 0.21405509114265447,
-      "bc_exploit_total": 4.161360869180908,
+      "n2": 120,
+      "game_value": -1.665172487624656,
+      "bc_exploit_total": 4.11996892387513,
       "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.6408268181039116,
-      "best_fit_exploit": 2.9256343341025395,
-      "best_fit_qre_value": 0.6268626777269825
+      "best_fit_tv": 0.6889308177780535,
+      "best_fit_exploit": 3.1194655055745804,
+      "best_fit_qre_value": -0.25848685993770915
     },
     {
       "idx": 50033,
@@ -578,26 +604,15 @@
       "best_fit_qre_value": -0.433690094708003
     },
     {
-      "idx": 46510,
-      "n1": 144,
-      "n2": 168,
-      "game_value": -1.3007012202153982,
-      "bc_exploit_total": 2.062927372662344,
-      "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.6892671899945859,
-      "best_fit_exploit": 1.95245940464033,
-      "best_fit_qre_value": -1.478113154574799
-    },
-    {
-      "idx": 7845,
-      "n1": 126,
+      "idx": 47278,
+      "n1": 147,
       "n2": 105,
-      "game_value": -1.1730075566179252,
-      "bc_exploit_total": 2.8421372060508503,
+      "game_value": 0.21405509114265447,
+      "bc_exploit_total": 4.161360869180908,
       "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.6108849884219067,
-      "best_fit_exploit": 2.4333832784185887,
-      "best_fit_qre_value": -1.333702898649864
+      "best_fit_tv": 0.6408268181039116,
+      "best_fit_exploit": 2.9256343341025395,
+      "best_fit_qre_value": 0.6268626777269825
     },
     {
       "idx": 25065,
@@ -611,15 +626,26 @@
       "best_fit_qre_value": -0.31932088959042554
     },
     {
-      "idx": 17075,
+      "idx": 7845,
       "n1": 126,
-      "n2": 144,
-      "game_value": 0.36499298417471504,
-      "bc_exploit_total": 3.2886624379595633,
+      "n2": 105,
+      "game_value": -1.1730075566179252,
+      "bc_exploit_total": 2.8421372060508503,
+      "best_fit_lambda": 0.01,
+      "best_fit_tv": 0.6108849884219067,
+      "best_fit_exploit": 2.4333832784185887,
+      "best_fit_qre_value": -1.333702898649864
+    },
+    {
+      "idx": 47458,
+      "n1": 105,
+      "n2": 126,
+      "game_value": -0.08724854065226967,
+      "bc_exploit_total": 2.175763540518769,
       "best_fit_lambda": 0.1,
-      "best_fit_tv": 0.7192102413048456,
-      "best_fit_exploit": 3.045694734313793,
-      "best_fit_qre_value": -0.01669798643836818
+      "best_fit_tv": 0.7088495200527762,
+      "best_fit_exploit": 1.8567233334843543,
+      "best_fit_qre_value": -0.22306415969588186
     },
     {
       "idx": 26280,
@@ -655,37 +681,26 @@
       "best_fit_qre_value": 0.27439703868883264
     },
     {
-      "idx": 47458,
-      "n1": 105,
-      "n2": 126,
-      "game_value": -0.08724854065226967,
-      "bc_exploit_total": 2.175763540518769,
-      "best_fit_lambda": 0.1,
-      "best_fit_tv": 0.7088495200527762,
-      "best_fit_exploit": 1.8567233334843543,
-      "best_fit_qre_value": -0.22306415969588186
-    },
-    {
       "idx": 51346,
       "n1": 120,
       "n2": 126,
       "game_value": -0.4710890871667247,
       "bc_exploit_total": 1.7651275681118759,
-      "best_fit_lambda": 5,
-      "best_fit_tv": 0.5818858224971211,
-      "best_fit_exploit": 1.1101857511335322,
-      "best_fit_qre_value": -0.48178399031088104
+      "best_fit_lambda": 1,
+      "best_fit_tv": 0.603360835046522,
+      "best_fit_exploit": 1.4425422935007153,
+      "best_fit_qre_value": -0.27238801175828653
     },
     {
-      "idx": 41586,
+      "idx": 17075,
       "n1": 126,
-      "n2": 120,
-      "game_value": 0.5910945298338142,
-      "bc_exploit_total": 2.4002918698200215,
-      "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.5887713597484556,
-      "best_fit_exploit": 1.6340970622306028,
-      "best_fit_qre_value": 0.7041259428671521
+      "n2": 144,
+      "game_value": 0.36499298417471504,
+      "bc_exploit_total": 3.2886624379595633,
+      "best_fit_lambda": 0.1,
+      "best_fit_tv": 0.7192102413048456,
+      "best_fit_exploit": 3.045694734313793,
+      "best_fit_qre_value": -0.01669798643836818
     },
     {
       "idx": 1219,
@@ -697,6 +712,17 @@
       "best_fit_tv": 0.6000795700159847,
       "best_fit_exploit": 1.868980751318865,
       "best_fit_qre_value": -0.15352839399865173
+    },
+    {
+      "idx": 41586,
+      "n1": 126,
+      "n2": 120,
+      "game_value": 0.5910945298338142,
+      "bc_exploit_total": 2.4002918698200215,
+      "best_fit_lambda": 0.01,
+      "best_fit_tv": 0.5887713597484556,
+      "best_fit_exploit": 1.6340970622306028,
+      "best_fit_qre_value": 0.7041259428671521
     },
     {
       "idx": 25250,
@@ -721,17 +747,6 @@
       "best_fit_qre_value": 0.3058573929298399
     },
     {
-      "idx": 6491,
-      "n1": 120,
-      "n2": 90,
-      "game_value": -0.327082530420307,
-      "bc_exploit_total": 2.1607592750099003,
-      "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.7097395757271499,
-      "best_fit_exploit": 2.5435679978008388,
-      "best_fit_qre_value": -0.30699368877864514
-    },
-    {
       "idx": 31151,
       "n1": 108,
       "n2": 105,
@@ -741,6 +756,17 @@
       "best_fit_tv": 0.7865257392999391,
       "best_fit_exploit": 3.011269524759583,
       "best_fit_qre_value": 0.8246575886861539
+    },
+    {
+      "idx": 6491,
+      "n1": 120,
+      "n2": 90,
+      "game_value": -0.327082530420307,
+      "bc_exploit_total": 2.1607592750099003,
+      "best_fit_lambda": 0.01,
+      "best_fit_tv": 0.7097395757271499,
+      "best_fit_exploit": 2.5435679978008388,
+      "best_fit_qre_value": -0.30699368877864514
     },
     {
       "idx": 53260,
@@ -754,17 +780,6 @@
       "best_fit_qre_value": -0.3050569011417393
     },
     {
-      "idx": 13602,
-      "n1": 189,
-      "n2": 192,
-      "game_value": 0.829724959020919,
-      "bc_exploit_total": 1.8565292267551252,
-      "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.7521707401863075,
-      "best_fit_exploit": 1.3720729371350067,
-      "best_fit_qre_value": 0.7885338913376105
-    },
-    {
       "idx": 1486,
       "n1": 120,
       "n2": 108,
@@ -774,6 +789,17 @@
       "best_fit_tv": 0.67583804709772,
       "best_fit_exploit": 1.9517652646940205,
       "best_fit_qre_value": 0.006657899988932793
+    },
+    {
+      "idx": 13602,
+      "n1": 189,
+      "n2": 192,
+      "game_value": 0.829724959020919,
+      "bc_exploit_total": 1.8565292267551252,
+      "best_fit_lambda": 0.01,
+      "best_fit_tv": 0.7521707401863075,
+      "best_fit_exploit": 1.3720729371350067,
+      "best_fit_qre_value": 0.7885338913376105
     },
     {
       "idx": 29142,
@@ -809,15 +835,15 @@
       "best_fit_qre_value": 0.4835574623552468
     },
     {
-      "idx": 37897,
-      "n1": 126,
-      "n2": 126,
-      "game_value": 0.02464126284145336,
-      "bc_exploit_total": 2.96908253509686,
+      "idx": 52021,
+      "n1": 108,
+      "n2": 120,
+      "game_value": 1.0092160006433923,
+      "bc_exploit_total": 3.3047472856852127,
       "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.7401803855973275,
-      "best_fit_exploit": 2.1731957009572787,
-      "best_fit_qre_value": -0.47689964177395405
+      "best_fit_tv": 0.7531914876859445,
+      "best_fit_exploit": 2.0668227162681254,
+      "best_fit_qre_value": 0.7371641543879726
     },
     {
       "idx": 14381,
@@ -831,15 +857,15 @@
       "best_fit_qre_value": 0.1141098634438133
     },
     {
-      "idx": 52021,
-      "n1": 108,
-      "n2": 120,
-      "game_value": 1.0092160006433923,
-      "bc_exploit_total": 3.3047472856852127,
+      "idx": 37897,
+      "n1": 126,
+      "n2": 126,
+      "game_value": 0.02464126284145336,
+      "bc_exploit_total": 2.96908253509686,
       "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.7531914876859445,
-      "best_fit_exploit": 2.0668227162681254,
-      "best_fit_qre_value": 0.7371641543879726
+      "best_fit_tv": 0.7401803855973275,
+      "best_fit_exploit": 2.1731957009572787,
+      "best_fit_qre_value": -0.47689964177395405
     },
     {
       "idx": 54817,
@@ -853,17 +879,6 @@
       "best_fit_qre_value": 0.2576052828057798
     },
     {
-      "idx": 9441,
-      "n1": 144,
-      "n2": 147,
-      "game_value": -0.053403138168794544,
-      "bc_exploit_total": 1.7588071674917192,
-      "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.7599505251039198,
-      "best_fit_exploit": 1.1364424534180437,
-      "best_fit_qre_value": 0.06264179122734438
-    },
-    {
       "idx": 29944,
       "n1": 147,
       "n2": 126,
@@ -875,15 +890,15 @@
       "best_fit_qre_value": 1.880499092247109
     },
     {
-      "idx": 34088,
-      "n1": 105,
-      "n2": 90,
-      "game_value": 0.029460489749908225,
-      "bc_exploit_total": 1.8574065052940774,
-      "best_fit_lambda": 2,
-      "best_fit_tv": 0.6726714088900103,
-      "best_fit_exploit": 1.4776923613638522,
-      "best_fit_qre_value": 0.20187400602963346
+      "idx": 9441,
+      "n1": 144,
+      "n2": 147,
+      "game_value": -0.053403138168794544,
+      "bc_exploit_total": 1.7588071674917192,
+      "best_fit_lambda": 0.01,
+      "best_fit_tv": 0.7599505251039198,
+      "best_fit_exploit": 1.1364424534180437,
+      "best_fit_qre_value": 0.06264179122734438
     },
     {
       "idx": 6536,
@@ -908,6 +923,17 @@
       "best_fit_qre_value": 1.5509624284024393
     },
     {
+      "idx": 34088,
+      "n1": 105,
+      "n2": 90,
+      "game_value": 0.029460489749908225,
+      "bc_exploit_total": 1.8574065052940774,
+      "best_fit_lambda": 2,
+      "best_fit_tv": 0.6726714088900103,
+      "best_fit_exploit": 1.4776923613638522,
+      "best_fit_qre_value": 0.20187400602963346
+    },
+    {
       "idx": 33222,
       "n1": 126,
       "n2": 144,
@@ -917,6 +943,17 @@
       "best_fit_tv": 0.6280323720352479,
       "best_fit_exploit": 3.040521137261692,
       "best_fit_qre_value": -1.0210809048521785
+    },
+    {
+      "idx": 31330,
+      "n1": 90,
+      "n2": 126,
+      "game_value": 2.3978598219215117,
+      "bc_exploit_total": 5.0048257983561015,
+      "best_fit_lambda": 0.01,
+      "best_fit_tv": 0.673896106594885,
+      "best_fit_exploit": 3.393872100367999,
+      "best_fit_qre_value": 1.583828914602591
     },
     {
       "idx": 23292,
@@ -930,17 +967,6 @@
       "best_fit_qre_value": -0.2727478446685079
     },
     {
-      "idx": 25263,
-      "n1": 144,
-      "n2": 126,
-      "game_value": -0.5102342885463573,
-      "bc_exploit_total": 3.035686546991337,
-      "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.7210851221078798,
-      "best_fit_exploit": 2.2479248542797956,
-      "best_fit_qre_value": -0.5857963884426162
-    },
-    {
       "idx": 9301,
       "n1": 105,
       "n2": 126,
@@ -950,6 +976,17 @@
       "best_fit_tv": 0.7039837889748655,
       "best_fit_exploit": 2.5600162245448277,
       "best_fit_qre_value": 0.6934024472974106
+    },
+    {
+      "idx": 25263,
+      "n1": 144,
+      "n2": 126,
+      "game_value": -0.5102342885463573,
+      "bc_exploit_total": 3.035686546991337,
+      "best_fit_lambda": 0.01,
+      "best_fit_tv": 0.7210851221078798,
+      "best_fit_exploit": 2.2479248542797956,
+      "best_fit_qre_value": -0.5857963884426162
     },
     {
       "idx": 6201,
@@ -974,15 +1011,15 @@
       "best_fit_qre_value": 1.91830647926292
     },
     {
-      "idx": 31330,
-      "n1": 90,
-      "n2": 126,
-      "game_value": 2.3978598219215117,
-      "bc_exploit_total": 5.0048257983561015,
+      "idx": 6936,
+      "n1": 105,
+      "n2": 147,
+      "game_value": -0.25898131708474215,
+      "bc_exploit_total": 3.169401654712418,
       "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.673896106594885,
-      "best_fit_exploit": 3.393872100367999,
-      "best_fit_qre_value": 1.583828914602591
+      "best_fit_tv": 0.6095339852188553,
+      "best_fit_exploit": 2.667276081648024,
+      "best_fit_qre_value": -0.28763683159285885
     },
     {
       "idx": 39490,
@@ -1007,17 +1044,6 @@
       "best_fit_qre_value": -0.9098918031109249
     },
     {
-      "idx": 6936,
-      "n1": 105,
-      "n2": 147,
-      "game_value": -0.25898131708474215,
-      "bc_exploit_total": 3.169401654712418,
-      "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.6095339852188553,
-      "best_fit_exploit": 2.667276081648024,
-      "best_fit_qre_value": -0.28763683159285885
-    },
-    {
       "idx": 14018,
       "n1": 75,
       "n2": 105,
@@ -1038,6 +1064,17 @@
       "best_fit_tv": 0.7680260678534485,
       "best_fit_exploit": 3.0007956472574486,
       "best_fit_qre_value": 0.854329052355898
+    },
+    {
+      "idx": 13558,
+      "n1": 192,
+      "n2": 147,
+      "game_value": 1.0893018583561789,
+      "bc_exploit_total": 1.672907150955732,
+      "best_fit_lambda": 0.01,
+      "best_fit_tv": 0.7348627813054269,
+      "best_fit_exploit": 1.36282384361666,
+      "best_fit_qre_value": 1.1988886541050685
     },
     {
       "idx": 7220,
@@ -1062,17 +1099,6 @@
       "best_fit_qre_value": 0.46418862028982005
     },
     {
-      "idx": 13558,
-      "n1": 192,
-      "n2": 147,
-      "game_value": 1.0893018583561789,
-      "bc_exploit_total": 1.672907150955732,
-      "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.7348627813054269,
-      "best_fit_exploit": 1.36282384361666,
-      "best_fit_qre_value": 1.1988886541050685
-    },
-    {
       "idx": 34644,
       "n1": 147,
       "n2": 147,
@@ -1082,6 +1108,17 @@
       "best_fit_tv": 0.6519735762180039,
       "best_fit_exploit": 2.4751360968631264,
       "best_fit_qre_value": -0.19356798307129444
+    },
+    {
+      "idx": 6204,
+      "n1": 168,
+      "n2": 105,
+      "game_value": -1.2316137294656657,
+      "bc_exploit_total": 3.4911598387997156,
+      "best_fit_lambda": 0.01,
+      "best_fit_tv": 0.7126802672049706,
+      "best_fit_exploit": 2.6693807033848467,
+      "best_fit_qre_value": -0.5509397597623756
     },
     {
       "idx": 7984,
@@ -1106,17 +1143,6 @@
       "best_fit_qre_value": -0.8312776272687674
     },
     {
-      "idx": 6204,
-      "n1": 168,
-      "n2": 105,
-      "game_value": -1.2316137294656657,
-      "bc_exploit_total": 3.4911598387997156,
-      "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.7126802672049706,
-      "best_fit_exploit": 2.6693807033848467,
-      "best_fit_qre_value": -0.5509397597623756
-    },
-    {
       "idx": 25249,
       "n1": 90,
       "n2": 126,
@@ -1128,15 +1154,15 @@
       "best_fit_qre_value": -0.7574441856742974
     },
     {
-      "idx": 51121,
-      "n1": 108,
-      "n2": 90,
-      "game_value": -0.4040084985046814,
-      "bc_exploit_total": 3.1224651074707364,
+      "idx": 52044,
+      "n1": 84,
+      "n2": 108,
+      "game_value": -0.2751100941602863,
+      "bc_exploit_total": 0.9798008356332562,
       "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.7122390969317628,
-      "best_fit_exploit": 2.3999506334597167,
-      "best_fit_qre_value": -0.10170171562050233
+      "best_fit_tv": 0.7885456000408617,
+      "best_fit_exploit": 0.9524735658857868,
+      "best_fit_qre_value": -0.10285192325163128
     },
     {
       "idx": 13572,
@@ -1150,15 +1176,15 @@
       "best_fit_qre_value": 0.5011347549831574
     },
     {
-      "idx": 52044,
-      "n1": 84,
-      "n2": 108,
-      "game_value": -0.2751100941602863,
-      "bc_exploit_total": 0.9798008356332562,
+      "idx": 51121,
+      "n1": 108,
+      "n2": 90,
+      "game_value": -0.4040084985046814,
+      "bc_exploit_total": 3.1224651074707364,
       "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.7885456000408617,
-      "best_fit_exploit": 0.9524735658857868,
-      "best_fit_qre_value": -0.10285192325163128
+      "best_fit_tv": 0.7122390969317628,
+      "best_fit_exploit": 2.3999506334597167,
+      "best_fit_qre_value": -0.10170171562050233
     },
     {
       "idx": 47781,
@@ -1183,17 +1209,6 @@
       "best_fit_qre_value": -0.06035928273994541
     },
     {
-      "idx": 25026,
-      "n1": 192,
-      "n2": 126,
-      "game_value": -0.3844484932499196,
-      "bc_exploit_total": 1.329702289858782,
-      "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.7072165196100701,
-      "best_fit_exploit": 1.1169604323954991,
-      "best_fit_qre_value": -0.40977062871644965
-    },
-    {
       "idx": 51950,
       "n1": 90,
       "n2": 168,
@@ -1203,6 +1218,17 @@
       "best_fit_tv": 0.778873525627002,
       "best_fit_exploit": 2.145544116124303,
       "best_fit_qre_value": 0.1482527531543689
+    },
+    {
+      "idx": 25026,
+      "n1": 192,
+      "n2": 126,
+      "game_value": -0.3844484932499196,
+      "bc_exploit_total": 1.329702289858782,
+      "best_fit_lambda": 0.01,
+      "best_fit_tv": 0.7072165196100701,
+      "best_fit_exploit": 1.1169604323954991,
+      "best_fit_qre_value": -0.40977062871644965
     },
     {
       "idx": 39547,
@@ -1249,6 +1275,17 @@
       "best_fit_qre_value": -0.20414880669162427
     },
     {
+      "idx": 292,
+      "n1": 126,
+      "n2": 105,
+      "game_value": 0.07344722674420029,
+      "bc_exploit_total": 2.4868980249637733,
+      "best_fit_lambda": 0.01,
+      "best_fit_tv": 0.6243668444779495,
+      "best_fit_exploit": 2.2953789273943066,
+      "best_fit_qre_value": -0.16106013859777463
+    },
+    {
       "idx": 45964,
       "n1": 72,
       "n2": 126,
@@ -1269,17 +1306,6 @@
       "best_fit_tv": 0.6553659266365772,
       "best_fit_exploit": 2.617862981444467,
       "best_fit_qre_value": 0.5572471747844499
-    },
-    {
-      "idx": 292,
-      "n1": 126,
-      "n2": 105,
-      "game_value": 0.07344722674420029,
-      "bc_exploit_total": 2.4868980249637733,
-      "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.6243668444779495,
-      "best_fit_exploit": 2.2953789273943066,
-      "best_fit_qre_value": -0.16106013859777463
     },
     {
       "idx": 38424,
@@ -1403,17 +1429,6 @@
       "best_fit_qre_value": -0.3802089537173794
     },
     {
-      "idx": 24628,
-      "n1": 90,
-      "n2": 108,
-      "game_value": 0.07578232463208733,
-      "bc_exploit_total": 4.1210276507452175,
-      "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.6155268497806591,
-      "best_fit_exploit": 3.3184662704491474,
-      "best_fit_qre_value": 0.5942884441621002
-    },
-    {
       "idx": 47686,
       "n1": 90,
       "n2": 126,
@@ -1425,15 +1440,15 @@
       "best_fit_qre_value": 1.040212191415358
     },
     {
-      "idx": 29209,
-      "n1": 144,
-      "n2": 168,
-      "game_value": -0.0604529951470882,
-      "bc_exploit_total": 1.422475770630316,
+      "idx": 24628,
+      "n1": 90,
+      "n2": 108,
+      "game_value": 0.07578232463208733,
+      "bc_exploit_total": 4.1210276507452175,
       "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.759135057855056,
-      "best_fit_exploit": 1.2064669589900463,
-      "best_fit_qre_value": -0.15147169645166966
+      "best_fit_tv": 0.6155268497806591,
+      "best_fit_exploit": 3.3184662704491474,
+      "best_fit_qre_value": 0.5942884441621002
     },
     {
       "idx": 49569,
@@ -1445,6 +1460,17 @@
       "best_fit_tv": 0.688386771845982,
       "best_fit_exploit": 1.9970914636656745,
       "best_fit_qre_value": 1.4231668182656236
+    },
+    {
+      "idx": 29209,
+      "n1": 144,
+      "n2": 168,
+      "game_value": -0.0604529951470882,
+      "bc_exploit_total": 1.422475770630316,
+      "best_fit_lambda": 0.01,
+      "best_fit_tv": 0.759135057855056,
+      "best_fit_exploit": 1.2064669589900463,
+      "best_fit_qre_value": -0.15147169645166966
     },
     {
       "idx": 53018,
@@ -1502,15 +1528,15 @@
       "best_fit_qre_value": 0.07460081370866063
     },
     {
-      "idx": 53031,
-      "n1": 147,
-      "n2": 72,
-      "game_value": 0.483649104833603,
-      "bc_exploit_total": 3.6001096887293453,
+      "idx": 21011,
+      "n1": 105,
+      "n2": 105,
+      "game_value": 0.3506267709238285,
+      "bc_exploit_total": 3.7600121852216755,
       "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.6529688512615486,
-      "best_fit_exploit": 3.008803289683104,
-      "best_fit_qre_value": 0.0711008128067091
+      "best_fit_tv": 0.7026053425049672,
+      "best_fit_exploit": 2.6109254671503033,
+      "best_fit_qre_value": 1.000388917763159
     },
     {
       "idx": 37741,
@@ -1524,15 +1550,15 @@
       "best_fit_qre_value": 0.19224649279782557
     },
     {
-      "idx": 21011,
-      "n1": 105,
-      "n2": 105,
-      "game_value": 0.3506267709238285,
-      "bc_exploit_total": 3.7600121852216755,
+      "idx": 53031,
+      "n1": 147,
+      "n2": 72,
+      "game_value": 0.483649104833603,
+      "bc_exploit_total": 3.6001096887293453,
       "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.7026053425049672,
-      "best_fit_exploit": 2.6109254671503033,
-      "best_fit_qre_value": 1.000388917763159
+      "best_fit_tv": 0.6529688512615486,
+      "best_fit_exploit": 3.008803289683104,
+      "best_fit_qre_value": 0.0711008128067091
     },
     {
       "idx": 4252,
@@ -1546,26 +1572,15 @@
       "best_fit_qre_value": 0.34078465277587255
     },
     {
-      "idx": 45787,
-      "n1": 120,
-      "n2": 168,
-      "game_value": -0.02886395130558754,
-      "bc_exploit_total": 1.6815407977720507,
+      "idx": 14858,
+      "n1": 126,
+      "n2": 144,
+      "game_value": -0.0007096784823125042,
+      "bc_exploit_total": 1.4549358495594147,
       "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.6986907291661977,
-      "best_fit_exploit": 1.9885128108568249,
-      "best_fit_qre_value": 0.014553807633647223
-    },
-    {
-      "idx": 14293,
-      "n1": 90,
-      "n2": 75,
-      "game_value": -0.1496153018174932,
-      "bc_exploit_total": 2.2671655325125077,
-      "best_fit_lambda": 0.5,
-      "best_fit_tv": 0.5276301579663845,
-      "best_fit_exploit": 2.5934657927732765,
-      "best_fit_qre_value": -1.2124994070649684
+      "best_fit_tv": 0.6899149678736917,
+      "best_fit_exploit": 1.145513362177938,
+      "best_fit_qre_value": -0.10564076425936715
     },
     {
       "idx": 39588,
@@ -1579,17 +1594,6 @@
       "best_fit_qre_value": -1.4705108979163917
     },
     {
-      "idx": 14858,
-      "n1": 126,
-      "n2": 144,
-      "game_value": -0.0007096784823125042,
-      "bc_exploit_total": 1.4549358495594147,
-      "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.6899149678736917,
-      "best_fit_exploit": 1.145513362177938,
-      "best_fit_qre_value": -0.10564076425936715
-    },
-    {
       "idx": 22427,
       "n1": 120,
       "n2": 105,
@@ -1599,6 +1603,39 @@
       "best_fit_tv": 0.6967726395520804,
       "best_fit_exploit": 2.2221702126614433,
       "best_fit_qre_value": -0.0036961707432133805
+    },
+    {
+      "idx": 14293,
+      "n1": 90,
+      "n2": 75,
+      "game_value": -0.1496153018174932,
+      "bc_exploit_total": 2.2671655325125077,
+      "best_fit_lambda": 0.5,
+      "best_fit_tv": 0.5276301579663845,
+      "best_fit_exploit": 2.5934657927732765,
+      "best_fit_qre_value": -1.2124994070649684
+    },
+    {
+      "idx": 45787,
+      "n1": 120,
+      "n2": 168,
+      "game_value": -0.02886395130558754,
+      "bc_exploit_total": 1.6815407977720507,
+      "best_fit_lambda": 0.01,
+      "best_fit_tv": 0.6986907291661977,
+      "best_fit_exploit": 1.9885128108568249,
+      "best_fit_qre_value": 0.014553807633647223
+    },
+    {
+      "idx": 8931,
+      "n1": 108,
+      "n2": 126,
+      "game_value": 0.3497579092743015,
+      "bc_exploit_total": 3.1071673251928917,
+      "best_fit_lambda": 0.01,
+      "best_fit_tv": 0.6294030167620517,
+      "best_fit_exploit": 2.659950751274904,
+      "best_fit_qre_value": 0.05136893094608415
     },
     {
       "idx": 5711,
@@ -1623,17 +1660,6 @@
       "best_fit_qre_value": 0.04723663642403058
     },
     {
-      "idx": 8931,
-      "n1": 108,
-      "n2": 126,
-      "game_value": 0.3497579092743015,
-      "bc_exploit_total": 3.1071673251928917,
-      "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.6294030167620517,
-      "best_fit_exploit": 2.659950751274904,
-      "best_fit_qre_value": 0.05136893094608415
-    },
-    {
       "idx": 15938,
       "n1": 168,
       "n2": 120,
@@ -1643,17 +1669,6 @@
       "best_fit_tv": 0.6765299376459427,
       "best_fit_exploit": 1.9134681303154801,
       "best_fit_qre_value": 0.6184588480420827
-    },
-    {
-      "idx": 46245,
-      "n1": 126,
-      "n2": 120,
-      "game_value": -1.8273223687472573,
-      "bc_exploit_total": 3.0761147313139294,
-      "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.7520059295140739,
-      "best_fit_exploit": 2.632331682634786,
-      "best_fit_qre_value": -1.0664877680674354
     },
     {
       "idx": 5582,
@@ -1689,15 +1704,15 @@
       "best_fit_qre_value": -0.35681825029482983
     },
     {
-      "idx": 12483,
-      "n1": 105,
-      "n2": 126,
-      "game_value": -0.2380809276333556,
-      "bc_exploit_total": 1.983085456453462,
+      "idx": 46245,
+      "n1": 126,
+      "n2": 120,
+      "game_value": -1.8273223687472573,
+      "bc_exploit_total": 3.0761147313139294,
       "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.6251773024111498,
-      "best_fit_exploit": 1.6979056450275076,
-      "best_fit_qre_value": -0.2658127586287465
+      "best_fit_tv": 0.7520059295140739,
+      "best_fit_exploit": 2.632331682634786,
+      "best_fit_qre_value": -1.0664877680674354
     },
     {
       "idx": 53547,
@@ -1722,6 +1737,17 @@
       "best_fit_qre_value": 0.5262511194584976
     },
     {
+      "idx": 12483,
+      "n1": 105,
+      "n2": 126,
+      "game_value": -0.2380809276333556,
+      "bc_exploit_total": 1.983085456453462,
+      "best_fit_lambda": 0.01,
+      "best_fit_tv": 0.6251773024111498,
+      "best_fit_exploit": 1.6979056450275076,
+      "best_fit_qre_value": -0.2658127586287465
+    },
+    {
       "idx": 29406,
       "n1": 147,
       "n2": 105,
@@ -1731,6 +1757,17 @@
       "best_fit_tv": 0.6934406063176229,
       "best_fit_exploit": 3.210222987779877,
       "best_fit_qre_value": -0.660975347674433
+    },
+    {
+      "idx": 30130,
+      "n1": 192,
+      "n2": 105,
+      "game_value": -0.07561211681467582,
+      "bc_exploit_total": 1.9684318089844761,
+      "best_fit_lambda": 0.01,
+      "best_fit_tv": 0.46647062073231726,
+      "best_fit_exploit": 1.946932070673922,
+      "best_fit_qre_value": 0.10139466888275081
     },
     {
       "idx": 20211,
@@ -1753,17 +1790,6 @@
       "best_fit_tv": 0.6014863996813027,
       "best_fit_exploit": 1.9029486756387035,
       "best_fit_qre_value": -0.1484532555246578
-    },
-    {
-      "idx": 30130,
-      "n1": 192,
-      "n2": 105,
-      "game_value": -0.07561211681467582,
-      "bc_exploit_total": 1.9684318089844761,
-      "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.46647062073231726,
-      "best_fit_exploit": 1.946932070673922,
-      "best_fit_qre_value": 0.10139466888275081
     },
     {
       "idx": 19597,
@@ -1821,15 +1847,15 @@
       "best_fit_qre_value": 0.32575650211233126
     },
     {
-      "idx": 33802,
-      "n1": 90,
-      "n2": 126,
-      "game_value": 0.7290333652969119,
-      "bc_exploit_total": 4.424234496651676,
+      "idx": 34339,
+      "n1": 144,
+      "n2": 144,
+      "game_value": 0.19931679853351583,
+      "bc_exploit_total": 1.6886047780666031,
       "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.7488398211302816,
-      "best_fit_exploit": 2.6407127824627237,
-      "best_fit_qre_value": 0.5297056579344382
+      "best_fit_tv": 0.7318017294126218,
+      "best_fit_exploit": 1.0793359174900747,
+      "best_fit_qre_value": 0.11554079487777603
     },
     {
       "idx": 36626,
@@ -1843,26 +1869,26 @@
       "best_fit_qre_value": -1.1373020216676786
     },
     {
-      "idx": 34339,
-      "n1": 144,
-      "n2": 144,
-      "game_value": 0.19931679853351583,
-      "bc_exploit_total": 1.6886047780666031,
+      "idx": 33802,
+      "n1": 90,
+      "n2": 126,
+      "game_value": 0.7290333652969119,
+      "bc_exploit_total": 4.424234496651676,
       "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.7318017294126218,
-      "best_fit_exploit": 1.0793359174900747,
-      "best_fit_qre_value": 0.11554079487777603
+      "best_fit_tv": 0.7488398211302816,
+      "best_fit_exploit": 2.6407127824627237,
+      "best_fit_qre_value": 0.5297056579344382
     },
     {
-      "idx": 40594,
-      "n1": 108,
-      "n2": 105,
-      "game_value": 0.06873543953488512,
-      "bc_exploit_total": 2.757530609944057,
+      "idx": 53199,
+      "n1": 126,
+      "n2": 144,
+      "game_value": 0.04941025979863555,
+      "bc_exploit_total": 3.1241045977436395,
       "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.7098282004756721,
-      "best_fit_exploit": 2.115362843756123,
-      "best_fit_qre_value": 0.23277546086080111
+      "best_fit_tv": 0.5356409881304149,
+      "best_fit_exploit": 2.6851967779019414,
+      "best_fit_qre_value": -1.1339852079640724
     },
     {
       "idx": 21564,
@@ -1876,15 +1902,15 @@
       "best_fit_qre_value": -0.11137645051680722
     },
     {
-      "idx": 53199,
-      "n1": 126,
-      "n2": 144,
-      "game_value": 0.04941025979863555,
-      "bc_exploit_total": 3.1241045977436395,
+      "idx": 40594,
+      "n1": 108,
+      "n2": 105,
+      "game_value": 0.06873543953488512,
+      "bc_exploit_total": 2.757530609944057,
       "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.5356409881304149,
-      "best_fit_exploit": 2.6851967779019414,
-      "best_fit_qre_value": -1.1339852079640724
+      "best_fit_tv": 0.7098282004756721,
+      "best_fit_exploit": 2.115362843756123,
+      "best_fit_qre_value": 0.23277546086080111
     },
     {
       "idx": 20633,
@@ -1920,17 +1946,6 @@
       "best_fit_qre_value": 2.725858212002971
     },
     {
-      "idx": 4212,
-      "n1": 108,
-      "n2": 108,
-      "game_value": 0.6989174331430756,
-      "bc_exploit_total": 2.2539510772447753,
-      "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.5045491162122647,
-      "best_fit_exploit": 1.458690685454935,
-      "best_fit_qre_value": 0.6927215197352186
-    },
-    {
       "idx": 32988,
       "n1": 144,
       "n2": 108,
@@ -1940,6 +1955,17 @@
       "best_fit_tv": 0.7203253579854594,
       "best_fit_exploit": 1.7588203046952615,
       "best_fit_qre_value": -0.027483886653661728
+    },
+    {
+      "idx": 4212,
+      "n1": 108,
+      "n2": 108,
+      "game_value": 0.6989174331430756,
+      "bc_exploit_total": 2.2539510772447753,
+      "best_fit_lambda": 0.01,
+      "best_fit_tv": 0.5045491162122647,
+      "best_fit_exploit": 1.458690685454935,
+      "best_fit_qre_value": 0.6927215197352186
     },
     {
       "idx": 42160,
@@ -1997,17 +2023,6 @@
       "best_fit_qre_value": -0.3905455694245614
     },
     {
-      "idx": 53591,
-      "n1": 147,
-      "n2": 120,
-      "game_value": 1.699757529207287,
-      "bc_exploit_total": 2.6277712285504586,
-      "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.7220159025563535,
-      "best_fit_exploit": 1.7576223386803302,
-      "best_fit_qre_value": 1.8115535908499218
-    },
-    {
       "idx": 34613,
       "n1": 72,
       "n2": 147,
@@ -2019,15 +2034,15 @@
       "best_fit_qre_value": 3.249546647862198
     },
     {
-      "idx": 44170,
-      "n1": 90,
-      "n2": 144,
-      "game_value": 0.019863176205686398,
-      "bc_exploit_total": 1.1953204614,
+      "idx": 53591,
+      "n1": 147,
+      "n2": 120,
+      "game_value": 1.699757529207287,
+      "bc_exploit_total": 2.6277712285504586,
       "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.6805990768686427,
-      "best_fit_exploit": 1.3153826543185319,
-      "best_fit_qre_value": -0.336072871908793
+      "best_fit_tv": 0.7220159025563535,
+      "best_fit_exploit": 1.7576223386803302,
+      "best_fit_qre_value": 1.8115535908499218
     },
     {
       "idx": 20295,
@@ -2041,6 +2056,17 @@
       "best_fit_qre_value": -0.2854960962281928
     },
     {
+      "idx": 44170,
+      "n1": 90,
+      "n2": 144,
+      "game_value": 0.019863176205686398,
+      "bc_exploit_total": 1.1953204614,
+      "best_fit_lambda": 0.01,
+      "best_fit_tv": 0.6805990768686427,
+      "best_fit_exploit": 1.3153826543185319,
+      "best_fit_qre_value": -0.336072871908793
+    },
+    {
       "idx": 16929,
       "n1": 168,
       "n2": 105,
@@ -2050,6 +2076,17 @@
       "best_fit_tv": 0.5657583390463911,
       "best_fit_exploit": 2.624525480422903,
       "best_fit_qre_value": 0.5135836265665668
+    },
+    {
+      "idx": 31121,
+      "n1": 168,
+      "n2": 144,
+      "game_value": -0.3937591773321883,
+      "bc_exploit_total": 2.266036962556522,
+      "best_fit_lambda": 0.01,
+      "best_fit_tv": 0.6739705835250418,
+      "best_fit_exploit": 1.6161888962494624,
+      "best_fit_qre_value": -0.16319623971253547
     },
     {
       "idx": 37810,
@@ -2072,17 +2109,6 @@
       "best_fit_tv": 0.6391204856877575,
       "best_fit_exploit": 2.604487143890281,
       "best_fit_qre_value": -0.28628664629107126
-    },
-    {
-      "idx": 31121,
-      "n1": 168,
-      "n2": 144,
-      "game_value": -0.3937591773321883,
-      "bc_exploit_total": 2.266036962556522,
-      "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.6739705835250418,
-      "best_fit_exploit": 1.6161888962494624,
-      "best_fit_qre_value": -0.16319623971253547
     },
     {
       "idx": 17179,
@@ -2118,17 +2144,6 @@
       "best_fit_qre_value": 0.4153132798787532
     },
     {
-      "idx": 18233,
-      "n1": 120,
-      "n2": 120,
-      "game_value": 0.22308093921072142,
-      "bc_exploit_total": 1.8563728678771654,
-      "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.7282077329431813,
-      "best_fit_exploit": 1.491852686614483,
-      "best_fit_qre_value": 0.17761753899525126
-    },
-    {
       "idx": 4614,
       "n1": 144,
       "n2": 105,
@@ -2140,6 +2155,17 @@
       "best_fit_qre_value": 0.4979348135751446
     },
     {
+      "idx": 18233,
+      "n1": 120,
+      "n2": 120,
+      "game_value": 0.22308093921072142,
+      "bc_exploit_total": 1.8563728678771654,
+      "best_fit_lambda": 0.01,
+      "best_fit_tv": 0.7282077329431813,
+      "best_fit_exploit": 1.491852686614483,
+      "best_fit_qre_value": 0.17761753899525126
+    },
+    {
       "idx": 31743,
       "n1": 168,
       "n2": 90,
@@ -2149,6 +2175,17 @@
       "best_fit_tv": 0.747828999379988,
       "best_fit_exploit": 3.4113232198687746,
       "best_fit_qre_value": 0.39313837699430854
+    },
+    {
+      "idx": 40971,
+      "n1": 126,
+      "n2": 144,
+      "game_value": -0.45602339223114746,
+      "bc_exploit_total": 2.0309488791164787,
+      "best_fit_lambda": 0.01,
+      "best_fit_tv": 0.7025371442891841,
+      "best_fit_exploit": 1.644979876852433,
+      "best_fit_qre_value": -0.3058077286188514
     },
     {
       "idx": 31268,
@@ -2171,17 +2208,6 @@
       "best_fit_tv": 0.7602726970785378,
       "best_fit_exploit": 1.6804829391048877,
       "best_fit_qre_value": 0.3614296362828453
-    },
-    {
-      "idx": 40971,
-      "n1": 126,
-      "n2": 144,
-      "game_value": -0.45602339223114746,
-      "bc_exploit_total": 2.0309488791164787,
-      "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.7025371442891841,
-      "best_fit_exploit": 1.644979876852433,
-      "best_fit_qre_value": -0.3058077286188514
     },
     {
       "idx": 50493,
@@ -2217,17 +2243,6 @@
       "best_fit_qre_value": 0.10408702244154588
     },
     {
-      "idx": 35345,
-      "n1": 126,
-      "n2": 144,
-      "game_value": -0.01780571343001898,
-      "bc_exploit_total": 1.6530061972888341,
-      "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.8184730912032934,
-      "best_fit_exploit": 0.8210258818319818,
-      "best_fit_qre_value": 0.1158522071249381
-    },
-    {
       "idx": 26452,
       "n1": 168,
       "n2": 105,
@@ -2237,6 +2252,17 @@
       "best_fit_tv": 0.7014811808490391,
       "best_fit_exploit": 2.7620665264915654,
       "best_fit_qre_value": 1.185540308896163
+    },
+    {
+      "idx": 35345,
+      "n1": 126,
+      "n2": 144,
+      "game_value": -0.01780571343001898,
+      "bc_exploit_total": 1.6530061972888341,
+      "best_fit_lambda": 0.01,
+      "best_fit_tv": 0.8184730912032934,
+      "best_fit_exploit": 0.8210258818319818,
+      "best_fit_qre_value": 0.1158522071249381
     },
     {
       "idx": 45921,
@@ -2250,15 +2276,15 @@
       "best_fit_qre_value": 0.44983109798922216
     },
     {
-      "idx": 45374,
-      "n1": 144,
+      "idx": 11048,
+      "n1": 120,
       "n2": 126,
-      "game_value": 2.087623965069919,
-      "bc_exploit_total": 2.787440058222633,
+      "game_value": 0.38929694500144224,
+      "bc_exploit_total": 4.142383290183271,
       "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.6933279076787421,
-      "best_fit_exploit": 1.9242415488892832,
-      "best_fit_qre_value": 1.7988416845844213
+      "best_fit_tv": 0.7400142792570811,
+      "best_fit_exploit": 2.592163527268669,
+      "best_fit_qre_value": -0.11969603602973326
     },
     {
       "idx": 5732,
@@ -2272,15 +2298,15 @@
       "best_fit_qre_value": -0.08310553222914197
     },
     {
-      "idx": 11048,
-      "n1": 120,
+      "idx": 45374,
+      "n1": 144,
       "n2": 126,
-      "game_value": 0.38929694500144224,
-      "bc_exploit_total": 4.142383290183271,
+      "game_value": 2.087623965069919,
+      "bc_exploit_total": 2.787440058222633,
       "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.7400142792570811,
-      "best_fit_exploit": 2.592163527268669,
-      "best_fit_qre_value": -0.11969603602973326
+      "best_fit_tv": 0.6933279076787421,
+      "best_fit_exploit": 1.9242415488892832,
+      "best_fit_qre_value": 1.7988416845844213
     },
     {
       "idx": 30092,
@@ -2349,28 +2375,6 @@
       "best_fit_qre_value": -0.17518932532615994
     },
     {
-      "idx": 41926,
-      "n1": 108,
-      "n2": 126,
-      "game_value": 0.19052406338121125,
-      "bc_exploit_total": 3.0840664442843533,
-      "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.6107906395840201,
-      "best_fit_exploit": 2.6904091847358647,
-      "best_fit_qre_value": 0.9122082095814616
-    },
-    {
-      "idx": 13075,
-      "n1": 144,
-      "n2": 120,
-      "game_value": -0.2031796974346456,
-      "bc_exploit_total": 4.5262421611524895,
-      "best_fit_lambda": 0.01,
-      "best_fit_tv": 0.6733541113153659,
-      "best_fit_exploit": 3.4220034843225706,
-      "best_fit_qre_value": -0.9733645509947298
-    },
-    {
       "idx": 53525,
       "n1": 168,
       "n2": 105,
@@ -2382,6 +2386,17 @@
       "best_fit_qre_value": 0.40746956059452133
     },
     {
+      "idx": 41926,
+      "n1": 108,
+      "n2": 126,
+      "game_value": 0.19052406338121125,
+      "bc_exploit_total": 3.0840664442843533,
+      "best_fit_lambda": 0.01,
+      "best_fit_tv": 0.6107906395840201,
+      "best_fit_exploit": 2.6904091847358647,
+      "best_fit_qre_value": 0.9122082095814616
+    },
+    {
       "idx": 46108,
       "n1": 144,
       "n2": 84,
@@ -2391,6 +2406,17 @@
       "best_fit_tv": 0.5829651029063172,
       "best_fit_exploit": 2.131535574205295,
       "best_fit_qre_value": -0.08556039157446202
+    },
+    {
+      "idx": 13075,
+      "n1": 144,
+      "n2": 120,
+      "game_value": -0.2031796974346456,
+      "bc_exploit_total": 4.5262421611524895,
+      "best_fit_lambda": 0.01,
+      "best_fit_tv": 0.6733541113153659,
+      "best_fit_exploit": 3.4220034843225706,
+      "best_fit_qre_value": -0.9733645509947298
     },
     {
       "idx": 14710,

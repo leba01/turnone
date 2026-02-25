@@ -41,21 +41,6 @@ def _top_k_variance_fraction(S: np.ndarray, k: int) -> float:
     return float(np.sum(S[:k] ** 2) / total)
 
 
-def _project_to_svd_subspace(strategy: np.ndarray, basis: np.ndarray) -> np.ndarray:
-    """Project strategy into SVD subspace and re-normalize.
-
-    basis: (k, n) — top-k left or right singular vectors (rows).
-    strategy: (n,) probability vector.
-    """
-    coords = basis @ strategy  # (k,) projections
-    reconstructed = basis.T @ coords  # (n,) back to original space
-    # Clip negatives and re-normalize
-    reconstructed = np.maximum(reconstructed, 0.0)
-    total = reconstructed.sum()
-    if total > 0:
-        reconstructed /= total
-    return reconstructed
-
 
 def analyze_matchup(m: dict) -> dict:
     """SVD analysis for a single matchup."""
@@ -89,29 +74,21 @@ def analyze_matchup(m: dict) -> dict:
     nash_support_p1 = int((nash_p1 > 1e-4).sum())
     nash_support_p2 = int((nash_p2 > 1e-4).sum())
 
-    # Payoff-space TV: project BC and Nash into top-k SVD subspace, compute TV
-    svd_tv = {}
-    for k in [1, 2, 3, 5]:
-        if k > min(n1, n2):
-            continue
-        # P1: use left singular vectors U[:, :k] as basis
-        U_k = U[:, :k].T  # (k, n1)
-        bc_p1_proj = _project_to_svd_subspace(bc_p1, U_k)
-        nash_p1_proj = _project_to_svd_subspace(nash_p1, U_k)
-        tv_p1 = 0.5 * float(np.abs(bc_p1_proj - nash_p1_proj).sum())
-
-        # P2: use right singular vectors Vt[:k, :] as basis
-        V_k = Vt[:k, :]  # (k, n2)
-        bc_p2_proj = _project_to_svd_subspace(bc_p2, V_k)
-        nash_p2_proj = _project_to_svd_subspace(nash_p2, V_k)
-        tv_p2 = 0.5 * float(np.abs(bc_p2_proj - nash_p2_proj).sum())
-
-        svd_tv[f"svd_tv_p1_top{k}"] = tv_p1
-        svd_tv[f"svd_tv_p2_top{k}"] = tv_p2
-
-    # Original TV for comparison
+    # Original TV for reference
     tv_orig_p1 = 0.5 * float(np.abs(bc_p1 - nash_p1).sum())
     tv_orig_p2 = 0.5 * float(np.abs(bc_p2 - nash_p2).sum())
+
+    # Payoff-weighted TV: weight strategy differences by action payoff relevance
+    # Uses S-weighted projection to measure "payoff-relevant distance"
+    # p1_payoff_relevance[i] = || U[i,:] * S || — how much action i participates in payoff
+    payoff_weight_p1 = np.sqrt(np.sum((U * S[None, :]) ** 2, axis=1))  # (n1,)
+    payoff_weight_p2 = np.sqrt(np.sum((Vt.T * S[None, :]) ** 2, axis=1))  # (n2,)
+
+    # Payoff-weighted TV: sum |bc - nash| * weight / sum(weight)
+    pw_p1 = payoff_weight_p1 / payoff_weight_p1.sum()
+    pw_p2 = payoff_weight_p2 / payoff_weight_p2.sum()
+    payoff_wtd_tv_p1 = float(np.sum(np.abs(bc_p1 - nash_p1) * pw_p1))
+    payoff_wtd_tv_p2 = float(np.sum(np.abs(bc_p2 - nash_p2) * pw_p2))
 
     # BC exploitability (for correlation analysis)
     game_value = m["game_value"]
@@ -130,7 +107,8 @@ def analyze_matchup(m: dict) -> dict:
         "nash_support_p2": nash_support_p2,
         "tv_orig_p1": tv_orig_p1,
         "tv_orig_p2": tv_orig_p2,
-        **svd_tv,
+        "payoff_wtd_tv_p1": payoff_wtd_tv_p1,
+        "payoff_wtd_tv_p2": payoff_wtd_tv_p2,
         "bc_exploitability": bc_exploit,
         "game_value": game_value,
     }
@@ -184,17 +162,14 @@ def main():
     print(f"  vs game size (n1*n2): {np.corrcoef(eff_ranks_95, game_sizes)[0,1]:.3f}")
     print(f"  vs Nash support P1: {np.corrcoef(eff_ranks_95, nash_supports)[0,1]:.3f}")
 
-    # SVD-space TV
-    print(f"\nPayoff-space TV (BC vs Nash after SVD projection):")
-    for k in [1, 2, 3, 5]:
-        key_p1 = f"svd_tv_p1_top{k}"
-        if key_p1 in results[0]:
-            vals_p1 = np.array([r[key_p1] for r in results])
-            vals_p2 = np.array([r[f"svd_tv_p2_top{k}"] for r in results])
-            print(f"  Top-{k}: P1 TV mean {vals_p1.mean():.3f}, P2 TV mean {vals_p2.mean():.3f}")
-
+    # Strategy distances
     tv_orig_p1 = np.array([r["tv_orig_p1"] for r in results])
-    print(f"  Original: P1 TV mean {tv_orig_p1.mean():.3f}")
+    tv_orig_p2 = np.array([r["tv_orig_p2"] for r in results])
+    pw_tv_p1 = np.array([r["payoff_wtd_tv_p1"] for r in results])
+    pw_tv_p2 = np.array([r["payoff_wtd_tv_p2"] for r in results])
+    print(f"\nStrategy distance (BC vs Nash):")
+    print(f"  Original TV:        P1 mean {tv_orig_p1.mean():.3f}, P2 mean {tv_orig_p2.mean():.3f}")
+    print(f"  Payoff-weighted TV: P1 mean {pw_tv_p1.mean():.3f}, P2 mean {pw_tv_p2.mean():.3f}")
 
     # Build bootstrap CIs for all key metrics
     boot_data = {

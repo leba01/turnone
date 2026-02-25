@@ -1,21 +1,25 @@
 # Phase 2 Workflow: Structural Characterization of Expert Play
 
-**Status**: COMPLETE (Feb 24, 2026). All experiments run, results analyzed, docs updated.
+**Status**: COMPLETE (Feb 24, 2026). Post-audit corrections applied.
 
 ## Results Summary
 
-Phase 2 ran four experiments to explain WHY bc_vs_bc ≈ V* despite TV(BC, Nash) = 0.99. One hypothesis confirmed, three rejected:
+Phase 2 ran four experiments to explain WHY bc_vs_bc ≈ V* despite TV(BC, Nash) = 0.99. Two clean findings, two confounded:
 
 | Experiment | Hypothesis | Key Result | Verdict |
 |-----------|-----------|-----------|---------|
-| SVD | Low-rank structure | Eff rank 2.9, TV collapses 0.99→0.30 | **CONFIRMED** |
+| SVD | Low-rank structure | Eff rank 2.9, payoff-weighted TV 0.019 | **CONFIRMED** |
 | QRE | BC ≈ QRE at moderate λ | Best TV = 0.68, 90% at λ=0.01 | **REJECTED** |
-| Indifference | Ecological adaptation | Ratio 1.75 (wrong direction) | **REJECTED** |
-| Regret | Population-rationality | Regret ratio 1.32 (wrong direction) | **REJECTED** |
+| Indifference | Ecological adaptation | Ratio 1.75 (confounded by Nash properties) | **UNINFORMATIVE** |
+| Regret | Population-rationality | Regret ratio 1.32 (confounded by Nash properties) | **UNINFORMATIVE** |
 
-**Updated narrative**: "Expert play achieves Nash-level payoffs because VGC turn-1 games have low effective strategic dimension (~3 out of ~122 actions). Most strategy variation lies in the null space of the payoff matrix. The TV distance of 0.99 is a measurement artifact inflated by payoff-irrelevant dimensions."
+**Post-audit corrections**:
+- SVD: Replaced broken payoff-space TV projection (clip+renormalize) with payoff-weighted TV. Result is stronger: 0.019 vs original 0.99 (50× collapse).
+- QRE: Added convergence tracking. 100% converged at λ≤1, 93% at λ=2, 28% at λ=5, <10% at λ≥10. High-λ data excluded.
+- Indifference/Regret: Nash by definition makes opponents indifferent. This confounds both experiments — random strategies show similar ratios (~1.69, ~1.39). Demoted from "negative findings" to uninformative.
+- SVD caveat: dynamics model d_action=32 bottleneck may amplify low-rank structure.
 
-**Original narrative target** (pre-results): "Expert play is a bounded-rational population equilibrium — a high-entropy QRE-like distribution that achieves Nash-level payoffs due to the low effective strategic dimension of the games." — The QRE part was wrong; the low-rank part was right.
+**Updated narrative**: "Expert play achieves Nash-level payoffs because VGC turn-1 games have low effective strategic dimension (~3 out of ~122 actions). Payoff-weighted TV between BC and Nash is just 0.019. Most strategy variation lies in the null space of the payoff matrix."
 
 **Milestone writeup**: Feb 25. Poster: Mar 11. Report: Mar 17.
 
@@ -286,7 +290,12 @@ Experiments 1-4 are fully independent and read the same cache file. They can be 
 All checks passed:
 1. Cache has 500 matchups, same seed=42 indices. bc_vs_bc mean = 0.2023, game_value mean = 0.2213 (matches Phase 1 values: 0.20 and 0.22).
 2. Nash vs Nash weighted std = 9.4e-16 ≈ 0 (indifference principle verified to machine precision).
-3. QRE at λ=100: TV to Nash = 0.81 (slow convergence, but trending toward 0). Exploitability decreasing at high λ.
+3. QRE convergence: 100% at λ≤1, drops at λ≥5 (simultaneous iteration cycling — flagged, high-λ data excluded).
 4. All external regret values ≥ 0 (by definition, confirmed).
 5. SVD effective rank ≤ min(n1, n2) for all 500 matchups (confirmed).
 6. Cache file: 31.6 MB, 500 matchups, matrix sizes P1 122±28, P2 122±26.
+
+Post-audit corrections:
+7. SVD payoff-space TV (clip+renormalize projection) was methodologically broken — replaced with payoff-weighted TV (0.019).
+8. Indifference/regret ratios confounded by Nash definitional properties — demoted to supplementary.
+9. QRE results at λ≥5 excluded due to convergence failure (28% at λ=5, <10% at λ≥10).

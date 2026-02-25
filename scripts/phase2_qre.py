@@ -51,7 +51,7 @@ def compute_qre(
     lam: float,
     max_iter: int = 2000,
     tol: float = 1e-6,
-) -> tuple[np.ndarray, np.ndarray, int]:
+) -> tuple[np.ndarray, np.ndarray, int, bool]:
     """Compute QRE via simultaneous softmax best-response iteration.
 
     Args:
@@ -61,7 +61,7 @@ def compute_qre(
         tol: convergence tolerance (sum of TV changes).
 
     Returns:
-        (x, y, iters) — QRE strategies for P1 and P2, and iterations used.
+        (x, y, iters, converged) — QRE strategies, iterations, convergence flag.
     """
     n1, n2 = R.shape
     x = np.ones(n1, dtype=np.float64) / n1  # uniform init
@@ -75,9 +75,9 @@ def compute_qre(
         x, y = x_new, y_new
 
         if change < tol:
-            return x, y, t + 1
+            return x, y, t + 1, True
 
-    return x, y, max_iter
+    return x, y, max_iter, False
 
 
 def analyze_matchup(args: tuple) -> dict:
@@ -88,7 +88,7 @@ def analyze_matchup(args: tuple) -> dict:
     results_by_lam = {}
 
     for lam in lambdas:
-        x_qre, y_qre, iters = compute_qre(R, lam)
+        x_qre, y_qre, iters, converged = compute_qre(R, lam)
 
         # QRE game value
         qre_value = float(x_qre @ R @ y_qre)
@@ -114,6 +114,7 @@ def analyze_matchup(args: tuple) -> dict:
         results_by_lam[str(lam)] = {
             "lambda": lam,
             "iters": iters,
+            "converged": converged,
             "qre_value": qre_value,
             "tv_bc_p1": tv_bc_p1,
             "tv_bc_p2": tv_bc_p2,
@@ -130,8 +131,13 @@ def analyze_matchup(args: tuple) -> dict:
             "entropy_p2": entropy_p2,
         }
 
-    # Best-fit lambda: minimize mean TV(QRE, BC) across both players
-    best_lam = min(results_by_lam.values(), key=lambda r: r["tv_bc_mean"])["lambda"]
+    # Best-fit lambda: minimize mean TV(QRE, BC), only among converged results
+    converged_results = [r for r in results_by_lam.values() if r["converged"]]
+    if converged_results:
+        best_lam = min(converged_results, key=lambda r: r["tv_bc_mean"])["lambda"]
+    else:
+        # Fallback: use lowest lambda (always converges)
+        best_lam = min(results_by_lam.values(), key=lambda r: r["lambda"])["lambda"]
 
     # BC exploitability for comparison
     bc_exploit_p1 = exploitability_from_nash(bc_p1, R, game_value, player=1)
@@ -191,20 +197,23 @@ def main():
 
     # Aggregate: QRE path curves
     print(f"\n{'lambda':>8}  {'TV→BC':>8}  {'TV→Nash':>8}  {'QRE val':>8}  "
-          f"{'exploit':>8}  {'entropy':>8}")
-    print("-" * 60)
+          f"{'exploit':>8}  {'entropy':>8}  {'conv%':>6}")
+    print("-" * 70)
 
     agg_by_lambda = {}
     for lam in args.lambdas:
         lam_key = str(lam)
+        converged = np.array([r["by_lambda"][lam_key]["converged"] for r in results])
         tv_bc = np.array([r["by_lambda"][lam_key]["tv_bc_mean"] for r in results])
         tv_nash = np.array([r["by_lambda"][lam_key]["tv_nash_mean"] for r in results])
         qre_val = np.array([r["by_lambda"][lam_key]["qre_value"] for r in results])
         exploit = np.array([r["by_lambda"][lam_key]["exploit_total"] for r in results])
         entropy_p1 = np.array([r["by_lambda"][lam_key]["entropy_p1"] for r in results])
+        conv_rate = float(converged.mean())
 
         agg_by_lambda[lam_key] = {
             "lambda": lam,
+            "convergence_rate": conv_rate,
             "tv_bc_mean": float(tv_bc.mean()),
             "tv_bc_median": float(np.median(tv_bc)),
             "tv_nash_mean": float(tv_nash.mean()),
@@ -215,8 +224,12 @@ def main():
             "entropy_p1_mean": float(entropy_p1.mean()),
         }
 
+        flag = "" if conv_rate > 0.95 else " *"
         print(f"{lam:>8.2f}  {tv_bc.mean():>8.3f}  {tv_nash.mean():>8.3f}  "
-              f"{qre_val.mean():>8.3f}  {exploit.mean():>8.3f}  {entropy_p1.mean():>8.2f}")
+              f"{qre_val.mean():>8.3f}  {exploit.mean():>8.3f}  "
+              f"{entropy_p1.mean():>8.2f}  {conv_rate*100:>5.1f}{flag}")
+
+    print("(* = <95% convergence — results unreliable at this lambda)")
 
     # Best-fit lambda distribution
     best_lambdas = np.array([r["best_fit_lambda"] for r in results])
@@ -249,10 +262,17 @@ def main():
     }
     boot_results = bootstrap_all(boot_data, n_resamples=10_000, seed=42)
 
+    # Convergence summary
+    conv_summary = {}
+    for lam in args.lambdas:
+        lam_key = str(lam)
+        conv_summary[lam_key] = agg_by_lambda[lam_key]["convergence_rate"]
+
     # Save
     output = {
         "n_matchups": len(results),
         "lambdas": args.lambdas,
+        "convergence_rates": conv_summary,
         "qre_path": agg_by_lambda,
         "best_fit": {
             "lambda_distribution": {

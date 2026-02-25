@@ -16,7 +16,7 @@ We model VGC turn 1 as a **simultaneous-move normal-form game** and build a pipe
 
 **Finding 1 — Individual exploitability**: Expert strategies are exploitable. Mean exploitability = 1.41–1.52 depending on dynamics oracle (v1: 1.41 [1.36, 1.46]; v2: 1.52 [1.47, 1.58]). Better dynamics finds *more* exploitability, not less. This signal exceeds the dynamics noise floor by 1.0+ reward units (noise sensitivity experiment).
 
-**Finding 2 — Collective equilibrium via low-rank structure**: Despite individual exploitability (~1.4), BC-vs-BC ≈ Nash value across all three configurations (gaps: -0.02, -0.03, +0.02). Phase 2 structural analysis reveals WHY: payoff matrices have effective rank ~3 (95% energy threshold) out of ~122 nominal actions per side. The top-1 singular value captures 76% of the Frobenius norm. In the payoff-relevant SVD subspace, the TV distance between BC and Nash collapses from 0.99 to 0.30. bc\_vs\_bc ≈ V\* is structurally inevitable: most strategy variation lies in the null space of R, so most strategies produce similar payoffs. Lipton et al. (2003) predict Nash support ≤ rank+1; our observed support of 2.7 matches perfectly. QRE does NOT fit expert play (best TV = 0.68, negative result). Ecological adaptation not supported (BC has MORE regret vs BC than vs Nash). The low-rank structure is the clean, complete explanation.
+**Finding 2 — Collective equilibrium via low-rank structure**: Despite individual exploitability (~1.4), BC-vs-BC ≈ Nash value across all three configurations (gaps: -0.02, -0.03, +0.02). Phase 2 structural analysis reveals WHY: payoff matrices have effective rank ~3 (95% energy threshold) out of ~122 nominal actions per side. The top-1 singular value captures 76% of the Frobenius norm. Payoff-weighted TV between BC and Nash is just **0.019** (vs 0.99 unweighted) — a 50× collapse confirming that strategy differences are concentrated in payoff-irrelevant dimensions. bc\_vs\_bc ≈ V\* is structurally inevitable: most strategy variation lies in the null space of R. Lipton et al. (2003) predict Nash support ≤ rank+1; our observed support of 2.7 matches perfectly. QRE does NOT fit expert play (best TV = 0.68, negative result). Caveat: dynamics model bottleneck (d_action=32) may amplify low-rank structure, though VGC damage mechanics are genuinely additive.
 
 **Finding 3 — Autoregressive BC null result**: Switching from independent P(a)×P(b) to autoregressive P(a)×P(b|a) factorization has no measurable effect on exploitability (1.41 → 1.41, same dynamics). Mon-A and mon-B correlations are not a meaningful source of exploitability.
 
@@ -549,38 +549,41 @@ Payoff matrices are approximately low-rank:
 
 Top-k variance fractions: top-1 captures 76%, top-3 captures 96%, top-5 captures 99%. These are effectively rank-3 games wearing ~122-dimensional costumes.
 
-**Payoff-space TV** (the money result):
+**Payoff-weighted TV** (the money result):
 
-| Projection | P1 TV(BC, Nash) | P2 TV(BC, Nash) |
-|------------|----------------|----------------|
-| Original | 0.988 | — |
-| Top-1 SVD | 0.300 | 0.298 |
-| Top-3 SVD | 0.645 | 0.609 |
-| Top-5 SVD | 0.666 | 0.653 |
+| Metric | P1 | P2 |
+|--------|----|----|
+| Original TV | 0.988 | 0.989 |
+| Payoff-weighted TV | **0.019** | **0.018** |
 
-The TV distance collapses by 70% in the top-1 payoff-relevant dimension. BC and Nash are far apart in the full strategy simplex but close in the subspace that matters for payoffs.
+Weighting strategy differences by their SVD-derived payoff relevance (action-level payoff importance from singular value decomposition), the TV between BC and Nash collapses by **50×**. BC and Nash are maximally different in the full strategy simplex but produce nearly identical payoffs.
 
 **Correlation**: effective rank (95%) correlates 0.40 with Nash support size, confirming Lipton, Markakis & Mehta (2003): in rank-r games, Nash support ≤ r+1. Our rank ~3 predicts support ≤ 4; we observe 2.7.
 
 **Interpretation**: The ~200 nominal actions per side collapse to ~3 strategic dimensions. Most of the action space is payoff-irrelevant — moves that differ only in targeting or tera combinations that produce identical expected outcomes. BC spreads mass across 95+ actions in this null space; Nash concentrates on ~3 actions. Both achieve similar payoffs because the extra 92 BC-support actions contribute negligible payoff variation.
 
+**Caveat**: The dynamics model uses d_action=32 concatenated action embeddings through an MLP, which creates a rank ceiling on the payoff matrices. The effective rank of ~3 may be partially a model architecture artifact. However, VGC damage IS largely additive (move base power × STAB × type effectiveness × stat ratio), so genuinely low rank is expected. Verifying on dyn_v2 (d_action=64) or an architecture-free oracle would strengthen this claim.
+
 #### 6.10.2 QRE Path Analysis (negative result)
 
 QRE (Quantal Response Equilibrium) at 12 rationality levels λ ∈ {0.01, ..., 100}, n=200 matchups:
 
-| λ | TV→BC | TV→Nash | Exploitability |
-|---|-------|---------|---------------|
-| 0.01 | 0.68 | 0.98 | 2.20 |
-| 1.0 | 0.72 | 0.95 | 1.70 |
-| 2.0 | 0.77 | 0.91 | 1.30 |
-| 10 | 0.95 | 0.79 | 1.64 |
-| 100 | 0.99 | 0.81 | 1.65 |
+| λ | TV→BC | TV→Nash | Exploitability | Conv% |
+|---|-------|---------|---------------|-------|
+| 0.01 | 0.68 | 0.98 | 2.20 | 100% |
+| 0.50 | 0.70 | 0.97 | 1.95 | 100% |
+| 1.0 | 0.72 | 0.95 | 1.70 | 100% |
+| 2.0 | 0.77 | 0.91 | 1.30 | 93% |
+| 5.0 | — | — | — | 28% * |
+| 10+ | — | — | — | <10% * |
 
-**Key findings**: (1) 90% of matchups best-fit at λ=0.01 (essentially uniform). (2) Best TV(QRE, BC) = 0.68 — nowhere close. (3) Non-monotone exploitability: minimum at λ=2, then rises. (4) Even at λ=100, TV to Nash is still 0.81 — slow convergence.
+\* Simultaneous softmax BR cycles at high λ; results unreliable. Dashes indicate non-converged data excluded.
 
-**Verdict**: BC is NOT well-approximated by QRE at any rationality level. The "bounded-rational equilibrium" framing doesn't fit. QRE converges to near-uniform, not to BC. Expert play is high-entropy but structured differently than QRE.
+**Key findings**: (1) 90% of matchups best-fit at λ=0.01 (essentially uniform). (2) Best TV(QRE, BC) = 0.68 — nowhere close. (3) Convergence drops sharply at λ≥5 due to cycling in simultaneous iteration.
 
-#### 6.10.3 Indifference Analysis (negative result)
+**Verdict**: BC is NOT well-approximated by QRE at any rationality level. The "bounded-rational equilibrium" framing doesn't fit. Expert play is high-entropy but structured differently than QRE.
+
+#### 6.10.3 Indifference Analysis (supplementary — confounded)
 
 2×2 table of weighted payoff std (action payoff variation under each strategy × opponent pair):
 
@@ -589,13 +592,11 @@ QRE (Quantal Response Equilibrium) at 12 rationality levels λ ∈ {0.01, ..., 1
 | BC strategy | 0.47 [0.44, 0.49] | 0.34 [0.32, 0.36] |
 | Nash strategy | 0.21 [0.19, 0.23] | 0.00 (exact) |
 
-The indifference principle (all support actions yield equal payoff) perfectly holds for Nash vs Nash (std = 0, sanity check). Nash vs BC shows low but nonzero variance (0.21) — Nash actions are near-indifferent even against non-Nash opponents.
+**Confound**: The indifference ratio (1.75) is uninformative. Nash strategies, by definition, make the opponent indifferent across their support. This mechanically compresses the payoff vector for ANY strategy facing Nash, not just BC. Random strategies produce a similar ratio (~1.69), confirming the confound.
 
-**Indifference ratio** (Var_BC_vs_BC / Var_BC_vs_Nash): median **1.75**, only 27% < 1. BC is MORE variable against BC than against Nash — the opposite of ecological adaptation. This rules out the "self-confirming equilibrium" explanation (Fudenberg & Levine 1993): BC is not locally optimal against its own population.
+**What the table does show**: Nash vs Nash std = 0.00 (sanity check). Nash vs BC std is low (0.21), consistent with low-rank structure making Nash actions near-indifferent against almost any opponent. But the BC vs BC > BC vs Nash comparison doesn't demonstrate ecological maladaptation — it's a Nash property, not a BC property.
 
-**Explanation via low-rank**: against Nash (which concentrates on ~3 actions), BC faces a relatively flat payoff landscape (std 0.34). Against BC (which spreads over ~95 actions), the opponent's strategy explores more of the payoff matrix, producing more variance (std 0.47). The low-rank structure means Nash actions are near-indifferent against almost anything.
-
-#### 6.10.4 Regret Decomposition (confirms non-adaptation)
+#### 6.10.4 Regret Decomposition (supplementary — confounded)
 
 External regret of BC against various opponents:
 
@@ -605,25 +606,27 @@ External regret of BC against various opponents:
 | vs Nash | 1.02 | [0.97, 1.07] | 1.03 | [0.99, 1.08] |
 | vs Uniform | 1.39 | — | 1.35 | — |
 
-**Regret ratio** (vs_bc / vs_nash): P1 median 1.32, P2 median 1.30. BC has ~30% MORE external regret against BC than against Nash. This is the opposite of population-rationality.
+**Confound**: The regret ratio (1.32) is uninformative. Nash compresses the opponent's payoff vector (makes opponents near-indifferent), which mechanically lowers the max payoff term in regret for ANY strategy facing Nash. Random strategies show a similar ratio (~1.39), confirming this is a property of Nash opponents, not a BC property.
 
-**Swap regret**: equals external regret (expected in normal-form games). 0% of matchups have swap regret < 0.1; only 25% < 1.0. BC is not an approximate correlated equilibrium, ruling out the Hart & Mas-Colell (2000) / MacQueen (2023) path to explaining bc_vs_bc ≈ V*.
+**Swap regret**: equals external regret (expected in normal-form games where the strategy is a single distribution, not per-state). In this setting swap regret adds no information beyond external regret.
 
-**BR mass**: ~0.35% on the best-response action. BC spreads probability so thin that even the best action gets negligible weight. This is consistent with the low-rank story: in a rank-3 game, many actions are near-tied in payoff, so BC's diffuse distribution doesn't lose much.
+**BR mass**: ~0.35% on the best-response action. Consistent with low-rank structure: many actions are near-tied in payoff, so BC's diffuse distribution doesn't lose much.
 
 #### 6.10.5 Phase 2 synthesis
-
-The four experiments converge on a single explanation: **low effective rank**.
 
 | Hypothesis | Prediction | Result | Verdict |
 |------------|-----------|--------|---------|
 | Low-rank structure | eff_rank ≪ game size | rank 3 vs size 122 | **CONFIRMED** |
+| Payoff-weighted distance | TV collapses under payoff weighting | 0.99 → 0.019 | **CONFIRMED** |
 | QRE fit | BC ≈ QRE at moderate λ | best TV = 0.68 | **REJECTED** |
-| Ecological adaptation | BC indifference ratio < 1 | ratio = 1.75 | **REJECTED** |
-| Population-rationality | regret_vs_bc < regret_vs_nash | ratio = 1.32 | **REJECTED** |
-| Approx correlated eq | low swap regret | 0% below 0.1 | **REJECTED** |
+| Ecological adaptation | indifference ratio < 1 | confounded | **UNINFORMATIVE** |
+| Population-rationality | regret ratio < 1 | confounded | **UNINFORMATIVE** |
 
-**Updated narrative**: Expert play achieves Nash-level payoffs NOT because experts are bounded-rational equilibrium players, and NOT because they're ecologically adapted to their population. Rather, the games themselves have low effective strategic dimension (~3 out of ~122). In this low-rank structure, MOST strategy distributions produce near-Nash payoffs, including BC's high-entropy spread. The TV distance of 0.99 is a measurement artifact: it reflects variation in payoff-irrelevant dimensions (targeting choices, tera combinations with identical expected outcomes). In the 3-dimensional payoff-relevant subspace, BC and Nash are much closer (TV ~0.30).
+Two clean findings: (1) Low effective rank (~3 out of ~122) is the structural explanation for bc_vs_bc ≈ V*. Payoff-weighted TV collapses from 0.99 to 0.019 — a 50× reduction confirming that BC and Nash are nearly identical in payoff-relevant dimensions. (2) QRE doesn't fit expert play (valid negative result).
+
+The indifference and regret experiments were confounded by Nash's definitional properties (Nash makes opponents indifferent, mechanically compressing payoff variation and regret for any facing strategy). They don't support or refute ecological adaptation.
+
+**Caveat**: The dynamics model's finite embedding dimension (d_action=32) may amplify the low-rank structure. VGC damage mechanics are genuinely additive (suggesting real low rank), but the exact effective rank of ~3 should be treated as an upper bound on the model's ability to represent payoff complexity, not necessarily the game's true rank.
 
 ---
 
