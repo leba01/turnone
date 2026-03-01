@@ -10,3 +10,8 @@ __pycache__/
 # IDE / tools
 .claude/
 *.egg-info/
+
+# Internal docs (stay on disk, not in public repo)
+CLAUDE.md
+docs/HISTORY.md
+docs/DECISIONS.md
