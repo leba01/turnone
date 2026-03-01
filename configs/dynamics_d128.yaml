@@ -1,0 +1,26 @@
+model:
+  d_model: 128
+  n_layers: 4
+  n_heads: 4
+  d_ff: 512
+  dropout: 0.1
+  d_action: 128        # was 32 (base) — ablation for rank confound check
+  d_hidden: 1024       # scale up trunk proportionally (was 256)
+  n_mlp_layers: 4      # was 3
+  action_cross_attn: false  # same as dyn_001 for clean d_action ablation
+
+training:
+  seed: 42
+  batch_size: 512
+  max_epochs: 50
+  patience: 10
+  lr: 3.0e-4
+  weight_decay: 0.01
+  lambda_ko: 3.0
+  lambda_field: 0.5
+  require_both_actions: true
+  num_workers: 4
+
+data:
+  split_dir: data/assembled
+  vocab_path: null
