@@ -14,12 +14,12 @@
 
 \newtheorem{proposition}{Proposition}
 
-\icmltitlerunning{The Cost of Convention}
+\icmltitlerunning{TurnOne: The Cost of Convention in Low-Rank Games}
 
 \begin{document}
 
 \twocolumn[
-\icmltitle{The Cost of Convention: \\ How Low-Rank Structure Makes Habitual Play Free}
+\icmltitle{TurnOne: The Cost of Convention in Low-Rank Games}
 
 \begin{icmlauthorlist}
 \icmlauthor{Lucas Brennan-Almaraz}{su}
@@ -99,7 +99,7 @@ The dynamics model shares the encoder architecture, adds action embeddings fused
 
 \subsection{Game-Theoretic Framework}
 
-For each matchup, we enumerate valid joint actions per side, evaluate each pair with the dynamics model, and construct a payoff matrix $R \in \mathbb{R}^{m \times n}$ ($m, n \sim 200$). Payoffs combine HP advantage, KO advantage (weight 3.0), and field advantage (weight 0.5), yielding a zero-sum game. Nash equilibria are computed via linear programming: mixed strategies $p^*, q^*$ and game value $V^* = {p^*}^\top R\, q^*$.
+For each matchup, we enumerate valid joint actions per side, evaluate each pair with the dynamics model, and construct a payoff matrix $R \in \mathbb{R}^{m \times n}$ ($m, n \sim 200$). Payoffs combine HP advantage, KO advantage (weight 3.0), and field advantage (weight 0.5), yielding a zero-sum game. This weighted structure is standard in game AI: poke-env \citep{poke-env}, OpenAI Five \citep{openai2019dota}, and fighting-game agents \citep{ishii2018fighting} all use domain-informed weighted sums of per-turn state changes. The specific weights are heuristic---KOs are weighted higher because eliminating a Pok\'emon has outsized strategic impact---but our qualitative findings are invariant to the choice: a reward sensitivity analysis over $w_\text{ko} \in \{1, 3, 5\}$ shows the price of convention remains zero at all settings (Section~\ref{sec:ablations}). Nash equilibria are computed via linear programming: mixed strategies $p^*, q^*$ and game value $V^* = {p^*}^\top R\, q^*$.
 
 \textbf{Exploitability} measures how much an opponent gains by best-responding. For player~1 with strategy~$p$, exploitability is $\max_j e_j^\top R\, p - p^\top R\, q_\text{BC}$; we report the average over both roles.
 
@@ -147,7 +147,14 @@ Despite individual exploitability of 1.41, expert-vs-expert outcomes match Nash:
 
 \subsection{The Game Is 3-Dimensional}
 
-SVD of each matchup's payoff matrix reveals effective rank 2.9 [2.8, 2.9] at 95\% energy out of ${\sim}122$ nominal actions. The top singular value captures 76\% of the Frobenius norm; the top~3 capture 96\%.
+SVD of each matchup's payoff matrix reveals effective rank 2.9 [2.8, 2.9] at 95\% energy out of ${\sim}122$ nominal actions. The top singular value captures 76\% of the Frobenius norm; the top~3 capture 96\% (Figure~\ref{fig:sv}).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{../figures/fig1_sv_decay.pdf}
+\caption{Cumulative energy fraction vs.\ number of singular values, averaged over 500~matchups (5th--95th percentile envelope). The top~3 singular values capture 96\% of spectral energy, revealing that VGC turn-1 is a 3-dimensional game in a ${\sim}122$-dimensional action space.}
+\label{fig:sv}
+\end{figure}
 
 \textbf{Projection test.} We project BC--Nash deviation vectors onto $R$'s singular subspaces. For player~1, $\|U_k^\top \delta_p\|^2 / \|\delta_p\|^2$ measures the fraction of deviation energy in the top-$k$ column space (analogously for player~2). Only 7.1\% [6.8\%, 7.5\%] falls in the top-3 dimensions---\textbf{93\% of deviation energy lies in the payoff null space} (Table~\ref{tab:projection}).
 
@@ -203,7 +210,7 @@ $k$ & Exploit ratio & $|\Delta V^*|$ & TV(Nash$_k$, Nash) \\
 If low rank makes convention free, then arbitrary strategies---not just expert ones---should achieve small gaps. We test three counterfactuals: \emph{uniform} strategies ($1/n$ over all actions), \emph{shuffled} BC (permuted action labels), and \emph{random} strategies (Dirichlet draws). Table~\ref{tab:counterfactual} presents the results.
 
 \begin{table}[t]
-\caption{Cross-play gap $p^\top R\, q - V^*$ for different strategy types (500~matchups, 50 random draws each).}
+\caption{Cross-play gap $p^\top R\, q - V^*$ for different strategy types (500~matchups, 1000 random draws each).}
 \label{tab:counterfactual}
 \vskip 0.1in
 \centering
@@ -221,7 +228,7 @@ Random (Dirichlet) & $-0.02$ & 0.32 \\
 \vskip -0.1in
 \end{table}
 
-All strategy types achieve gaps indistinguishable from zero. The small bc\_vs\_bc gap is not evidence of expert near-optimality---it is a structural property of low-rank games. Any mixed strategy pair produces near-Nash payoffs because most strategic variation is payoff-irrelevant.
+All strategy types achieve gaps indistinguishable from zero. The small BC-vs-BC gap is not evidence of expert near-optimality---it is a structural property of low-rank games. Any mixed strategy pair produces near-Nash payoffs because most strategic variation is payoff-irrelevant.
 
 \subsection{A Spectral Bound on the Price of Convention}
 
@@ -295,22 +302,46 @@ There is one dimension where convention is costly. Terastallization is an irreve
 \label{sec:distance}
 %% ============================================================
 
-Three different distance measures paint very different pictures of convention's relationship to Nash:
+Four different distance measures paint very different pictures of convention's relationship to Nash:
 
 \textbf{Total variation: maximally far.} TV $= 0.99$. In probability space, BC and Nash are essentially disjoint.
 
 \textbf{Payoff gap: indistinguishable.} $p_\text{BC}^\top R\, q_\text{BC} - V^* = -0.02$. In payoff space, they are the same.
 
-\textbf{Dynamics: 54 iterations.} Smoothed best-response dynamics initialized at BC converge from initial exploitability 2.74 to below 0.50 in 54 iterations ($\beta = 0.01$, $\eta = 0.1$), reaching 0.11 by iteration~500 (Figure~\ref{fig:br}). Expert play sits roughly 54 smoothed BR iterations from near-Nash play---a more intuitive distance than TV~$= 0.99$.
+\textbf{Dynamics: 19 iterations.} Smoothed best-response dynamics initialized at BC converge from initial exploitability 2.81 to below 0.50 in 19 iterations ($\beta = 0.01$, $\eta = 0.1$), reaching 0.14 by iteration~500 (Figure~\ref{fig:br}). Expert play sits roughly 19 smoothed BR iterations from near-Nash play---a more intuitive distance than TV~$= 0.99$.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{../figures/fig3_smoothed_br.pdf}
-\caption{Smoothed best-response convergence from BC initialization. Exploitability decreases from 2.74 to below 0.50 in ${\sim}54$ iterations, reaching 0.11 at iteration~500.}
+\caption{Smoothed best-response convergence from BC initialization. Exploitability decreases from 2.81 to below 0.50 in ${\sim}19$ iterations, reaching 0.14 at iteration~500.}
 \label{fig:br}
 \end{figure}
 
-The dissonance between these measures \emph{is} the insight. Convention lives in a different region of strategy space than Nash, but the payoff landscape is so flat along most dimensions that this distance doesn't matter. The 50$\times$ collapse from TV (0.99) to PW-TV (0.019) quantifies exactly how much of the distance is payoff-relevant.
+\textbf{Interpolation: a smooth gradient.} The smoothed BR measures the \emph{learning} path from convention to Nash (iterative, 19 steps to halve exploitability). A complementary question is whether the \emph{geometric} path---direct mixing---reveals any phase transition. We construct mixture strategies $\pi_\alpha = (1-\alpha)\,\pi_\text{BC} + \alpha\,\pi_\text{Nash}$ and measure exploitability at each $\alpha$ (Table~\ref{tab:mixture}).
+
+\begin{table}[t]
+\caption{Exploitability of BC--Nash mixtures $\pi_\alpha = (1-\alpha)\,\pi_\text{BC} + \alpha\,\pi_\text{Nash}$ (500~matchups).}
+\label{tab:mixture}
+\vskip 0.1in
+\centering
+\small
+\begin{tabular}{lcc}
+\toprule
+$\alpha$ (Nash weight) & Exploitability & Reduction \\
+\midrule
+0.0 (pure BC) & 1.41 & --- \\
+0.1 & 1.26 & 11\% \\
+0.3 & 0.96 & 32\% \\
+0.5 & 0.68 & 52\% \\
+1.0 (pure Nash) & 0.00 & 100\% \\
+\bottomrule
+\end{tabular}
+\vskip -0.1in
+\end{table}
+
+The decay is approximately linear: exploit $\approx 1.41 \times (1-\alpha)$, with no critical threshold or phase transition. This linearity is a structural prediction of low-rank games. If most of the BC--Nash deviation lies in the payoff null space (93\%, per Table~\ref{tab:projection}), then linearly interpolating toward Nash linearly reduces the payoff-relevant component of the deviation. The geometry of the convention--Nash gap is flat: every step toward Nash buys a proportional reduction in exploitability, and no step is disproportionately important.
+
+The dissonance between these measures \emph{is} the insight. Convention lives in a different region of strategy space than Nash, but the payoff landscape is so flat along most dimensions that this distance doesn't matter. TV says maximally far (0.99); payoff gap says identical ($-0.02$); smoothed BR says 19 iterations; mixture interpolation says a smooth linear gradient. The 50$\times$ collapse from TV (0.99) to PW-TV (0.019) quantifies exactly how much of the distance is payoff-relevant, and the linearity of the mixture path suggests that the remaining distance has no hidden structure---it is uniformly unimportant.
 
 %% ============================================================
 \section{Ablations and Negative Results}
@@ -321,7 +352,27 @@ The dissonance between these measures \emph{is} the insight. Convention lives in
 
 \textbf{Improved dynamics.} The dyn\_002 model ($d_\text{action} = 64$, lower validation loss) finds \emph{more} exploitability (1.41 $\to$ 1.52): our base estimate is a lower bound.
 
-\textbf{QRE rejection.} Quantal response equilibrium \citep{mckelvey1995quantal} fits poorly: 90\% of matchups have best-fit $\lambda \leq 0.01$ (essentially uniform), with TV(QRE, BC) $= 0.68$. Experts are far more structured than ``noisy Nash.''
+\textbf{QRE rejection.} Quantal response equilibrium \citep{mckelvey1995quantal} fits poorly: 92\% of matchups have best-fit $\lambda \leq 0.01$ (essentially uniform), with TV(QRE, BC) $= 0.68$. Experts are far more structured than ``noisy Nash.''
+
+\textbf{Reward sensitivity.} Our payoff weights ($w_\text{hp} = 1$, $w_\text{ko} = 3$, $w_\text{field} = 0.5$) are domain-informed heuristics. To verify that our findings are not an artifact of this choice, we recompute all game-theoretic quantities under $w_\text{ko} \in \{1, 3, 5\}$ with other weights fixed (Table~\ref{tab:reward_sens}). Exploitability scales with the weight (larger units yield larger numbers), but the price of convention---the BC-vs-BC gap relative to Nash---remains indistinguishable from zero at all settings. The qualitative finding is weight-invariant.
+
+\begin{table}[t]
+\caption{Reward sensitivity: game-theoretic quantities under varying KO weight (500~matchups, 95\% CI).}
+\label{tab:reward_sens}
+\vskip 0.1in
+\centering
+\small
+\begin{tabular}{lccc}
+\toprule
+$w_\text{ko}$ & Exploitability & BC-vs-BC $- V^*$ & Convention free? \\
+\midrule
+1.0 & 0.58 [0.56, 0.60] & $+0.02$ [$-0.01$, $0.04$] & Yes \\
+3.0 & 1.41 [1.36, 1.46] & $-0.02$ [$-0.07$, $0.04$] & Yes \\
+5.0 & 2.25 [2.16, 2.33] & $-0.05$ [$-0.13$, $0.04$] & Yes \\
+\bottomrule
+\end{tabular}
+\vskip -0.1in
+\end{table}
 
 %% ============================================================
 \section{Discussion}
@@ -336,18 +387,11 @@ The dissonance between these measures \emph{is} the insight. Convention lives in
 
 \textbf{The tera exception.} Terastallization accounts for 30\% of exploitability. Unlike move selection, tera is an irreversible resource with multi-turn consequences. Experts rationally conserve it; myopic game theory says spend it. This tension between single-turn and multi-turn optimality is the main limitation of our framework and the main opportunity for future work.
 
+\textbf{When is convention free?} Our results suggest a sufficient condition: convention is free when the payoff matrix is approximately low-rank, which occurs when many nominal actions have similar strategic consequences. In VGC, this action redundancy arises from the additive structure of damage calculation---base power $\times$ STAB $\times$ type effectiveness $\times$ stat ratio means that targeting slot~A versus slot~B with the same move often yields similar expected damage, collapsing hundreds of action combinations into a few effective dimensions. We conjecture that convention is free in other games with redundant action spaces: multi-unit auctions with many equivalent lots, network routing with many paths of similar cost, or any setting where the payoff-relevant distinctions are far fewer than the nominal choices. Conversely, convention should be \emph{costly} in games where each action is informationally distinct---poker, where bet sizes signal hand strength, is the canonical example. A testable prediction: compute the effective rank-to-size ratio of payoff matrices in other empirical games; where that ratio is small, predict that convention is free.
+
+\textbf{The irreversibility boundary.} The tera exception (\S\ref{sec:tera}) points to a general principle about when convention fails. Terastallization is costly not because it is complex but because it is binary, irreversible, and has consequences that extend beyond the current decision point. These three properties---discreteness, irreversibility, and cross-temporal impact---make it orthogonal to the low-rank structure that governs move selection. In any game, we expect convention to fail specifically on irreversible resource commitments: poker all-ins (where a single decision commits the entire stack), military commitment of reserves (where redeployment is slow), or startup burn-rate decisions (where capital, once spent, is gone). In each case, the conventional instinct is to conserve---and the myopic optimum is often to commit. The gap between myopic optimization and human conservation heuristics is largest where irreversibility makes the stakes highest.
+
 \textbf{Limitations.} (a)~Turn-1 only: multi-turn consequences, especially for tera, are not captured. (b)~Dynamics model noise: HP MAE of 13.3 yields SNR of 3.4:1. (c)~BC-vs-BC tracking: reliable for high-stakes matchups (top quintile $r = 0.85$) but poor for low-stakes (bottom quintile $r = 0.05$; overall $R^2 = 0.59$). (d)~Regulation~G specific. (e)~Later turns with more switching may have higher effective rank.
-
-%% ============================================================
-%% Structural analysis figure
-%% ============================================================
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\columnwidth]{../figures/fig1_sv_decay.pdf}
-\caption{Cumulative energy fraction vs.\ number of singular values, averaged over 500~matchups (5th--95th percentile envelope). The top~3 singular values capture 96\% of spectral energy, revealing that VGC turn-1 is a 3-dimensional game in a ${\sim}122$-dimensional action space.}
-\label{fig:sv}
-\end{figure}
 
 \bibliography{references}
 \bibliographystyle{icml2018}
