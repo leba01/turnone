@@ -1,0 +1,355 @@
+\documentclass{article}
+
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{amsthm}
+
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+\usepackage[accepted]{icml2018}
+
+\newtheorem{proposition}{Proposition}
+
+\icmltitlerunning{The Cost of Convention}
+
+\begin{document}
+
+\twocolumn[
+\icmltitle{The Cost of Convention: \\ How Low-Rank Structure Makes Habitual Play Free}
+
+\begin{icmlauthorlist}
+\icmlauthor{Lucas Brennan-Almaraz}{su}
+\end{icmlauthorlist}
+
+\icmlcorrespondingauthor{Lucas Brennan-Almaraz}{leba@stanford.edu}
+
+\icmlaffiliation{su}{Department of Computer Science, Stanford University, Stanford, CA, USA}
+
+\icmlkeywords{game theory, behavioral cloning, empirical game theory, low-rank games, Pokemon}
+
+\vskip 0.3in
+]
+
+\printAffiliationsAndNotice{}
+
+\begin{abstract}
+In mechanism design, the \emph{price of anarchy} measures the cost of selfish play relative to social optimum. We introduce an analogous concept for individual behavior: the \emph{price of convention}---the cost of playing by habit rather than by calculation. We study this in competitive Pok\'emon VGC, where each player chooses from ${\sim}200$ actions simultaneously. Expert strategies, learned via behavioral cloning (BC) from 154,718 battles, bear no resemblance to Nash equilibria: total variation distance is 0.99, and experts place only 1.3\% of their probability mass on Nash-support actions. Yet expert-vs-expert payoffs match Nash values within 0.02. We show this is not a property of expert skill but of game structure. SVD analysis reveals effective rank~3 out of ${\sim}122$ actions; counterfactual tests confirm that \emph{random} strategies also achieve near-zero gaps. The game is 3-dimensional wearing a 122-dimensional disguise, and convention is free because most strategic variation is payoff-irrelevant. The one exception is terastallization: experts default to conserving it while optimal play uses it immediately, accounting for 30\% of all exploitability. Convention costs 1.41 reward units against an optimizer, but 0.00 against another conventional player---and the low-rank structure explains exactly why.
+\end{abstract}
+
+%% ============================================================
+\section{Introduction}
+%% ============================================================
+
+What does it cost to play by habit instead of by calculation? In game theory, optimal play requires computing and mixing over Nash equilibrium strategies. In practice, human experts rely on heuristics, conventions, and team-specific habits. The gap between these approaches---what we call the \emph{price of convention}---depends on both the game and the strategies.
+
+We study this question in Pok\'emon Video Game Championships (VGC), a doubles format where both players simultaneously choose actions for two active Pok\'emon on turn~1. The action space is combinatorial (${\sim}200$--$400$ valid actions per side), the game is zero-sum and simultaneous, and the setting has a large expert population playing millions of recorded battles online. This makes it a natural testbed for measuring how humans actually play in complex strategic environments.
+
+Our analysis proceeds in three parts, yielding three contributions:
+
+\textbf{Convention, not strategy} (\S\ref{sec:convention}). We construct an empirical game-theoretic analysis (EGTA) pipeline with learned dynamics for ${\sim}200$-action games, and provide the first large-scale exploitability measurement of human play in a combinatorial game. Expert play is individually exploitable---mean 1.41 reward units, roughly half a KO advantage per turn---but is strategically nothing like Nash equilibria (TV~$= 0.99$). Experts play \emph{convention}: team-specific habits largely independent of the opponent.
+
+\textbf{Convention is free} (\S\ref{sec:free}). Despite individual exploitability, expert-vs-expert outcomes match Nash values within 0.02. We show this is not expert skill but game structure: SVD reveals effective rank~3, and counterfactual experiments confirm that random strategies also achieve near-zero gaps. We formalize the \emph{price of convention} and derive a spectral bound: in a game whose rank-$k$ approximation captures $1 - \varepsilon$ of the spectral energy, the price of convention is bounded by $2\sigma_{k+1}$.
+
+\textbf{Where convention fails} (\S\ref{sec:tera}). Terastallization---an irreversible resource consumed for the entire game---is the one dimension where convention is costly. Experts default to conserving it; optimal play uses it immediately. This single decision accounts for 30\% of total exploitability.
+
+These findings connect to our companion project TurnZero \citep{brennan2026turnzero}, which found that expert team selection during the pre-battle preview phase also reflects convention rather than strategic optimization. Turn~1 action selection exhibits the same pattern: convention at every stage, free at every stage, because the underlying game is low-rank at every stage.
+
+\subsection{Related Work}
+
+\textbf{Minimax in sports.}
+Studies of penalty kicks \citep{chiappori2002testing, palacios2003professionals} and tennis serves \citep{walker2001minimax, anderson2024professionals} find near-minimax play in 2--3 choice domains. Our setting has ${\sim}200$ actions and requires a learned payoff model.
+
+\textbf{Price of anarchy.}
+\citet{koutsoupias1999worst} introduced the price of anarchy---the ratio between worst-case equilibrium and social optimum in non-cooperative games. \citet{roughgarden2002bad} extended this to routing games. Our ``price of convention'' is analogous but concerns \emph{individual} deviation from equilibrium rather than equilibrium quality.
+
+\textbf{Focal points and convention.}
+\citet{schelling1960strategy} argued that players coordinate on \emph{focal points}---salient defaults that require no strategic reasoning. Our finding that experts play team-specific conventions that happen to be payoff-equivalent to Nash is the game-theoretic realization of Schelling's insight in a quantified setting.
+
+\textbf{Poker AI.}
+Superhuman poker agents \citep{bowling2015heads, brown2019superhuman} demonstrate that human play is exploitable but focus on building agents rather than characterizing the \emph{structure} of human suboptimality.
+
+\textbf{EGTA.}
+Our approach follows the EGTA framework \citep{wellman2006methods}, substituting a learned dynamics model for the traditional simulator oracle.
+
+\textbf{Pok\'emon AI.}
+VGC-Bench \citep{angliss2025vgcbench} evaluates LLM agents; Metamon \citep{grigsby2025metamon} applies offline RL to singles. Both train agents; we measure existing human play.
+
+%% ============================================================
+\section{Approach}
+\label{sec:approach}
+%% ============================================================
+
+\subsection{Data}
+
+We use 154,718 rated battles from Pok\'emon Showdown (Gen~9 VGC Regulation~G, 1500+ Elo), yielding 309,436 directed turn-1 examples \citep{brennan2026turnzero}. We exclude battles with voluntary switches (${\sim}27\%$). Each example encodes full team composition (6 Pok\'emon with moves, abilities, items), lead assignments, and field state. Actions are encoded as 16~slots per Pok\'emon (4 moves $\times$ 4 targets) with a 3-way tera flag.
+
+\subsection{Behavioral Cloning}
+
+Our BC model uses a Transformer encoder (4~layers, 4~heads, $d_\text{model} = 128$) operating on 12~Pok\'emon tokens plus 1~field token. Two heads decode independently: a 16-way action head per active Pok\'emon and a 3-way tera head, with $P(a_1, a_2, \text{tera}) = P(a_1) \cdot P(a_2) \cdot P(\text{tera})$. The model achieves 44.8\% top-1 accuracy ($3\times$ uniform) and 79.6\% top-3 accuracy with 1.32M parameters. We validate the independence assumption in Section~\ref{sec:ablations}: mutual information between leads' actions is 0.018~bits.
+
+\subsection{Dynamics Model}
+
+The dynamics model shares the encoder architecture, adds action embeddings fused with the encoder output, and predicts per-Pok\'emon HP changes, KO probabilities, and post-turn field state. It achieves HP MAE of 13.3/100 and KO AUC of 0.91.
+
+\textbf{Signal-to-noise validation.} Since all game-theoretic quantities depend on learned dynamics, we validate that signal exceeds model noise. Injecting Gaussian noise at the dynamics model's reward-space error scale (MAE $= 1.19$) yields a noise-floor exploitability of 0.41---a signal-to-noise ratio of 3.4:1 against our measured exploitability of 1.41.
+
+\subsection{Game-Theoretic Framework}
+
+For each matchup, we enumerate valid joint actions per side, evaluate each pair with the dynamics model, and construct a payoff matrix $R \in \mathbb{R}^{m \times n}$ ($m, n \sim 200$). Payoffs combine HP advantage, KO advantage (weight 3.0), and field advantage (weight 0.5), yielding a zero-sum game. Nash equilibria are computed via linear programming: mixed strategies $p^*, q^*$ and game value $V^* = {p^*}^\top R\, q^*$.
+
+\textbf{Exploitability} measures how much an opponent gains by best-responding. For player~1 with strategy~$p$, exploitability is $\max_j e_j^\top R\, p - p^\top R\, q_\text{BC}$; we report the average over both roles.
+
+%% ============================================================
+\section{Convention, Not Strategy}
+\label{sec:convention}
+%% ============================================================
+
+We evaluate on 500 randomly sampled test matchups, reporting 95\% bootstrap confidence intervals throughout.
+
+\textbf{Experts are exploitable.} Mean exploitability is 1.41 [1.36, 1.46] reward units---roughly half a KO advantage per turn. Table~\ref{tab:triangle} shows the payoff landscape: against a best-responder, BC achieves only $-1.19$, while a best-responder to BC achieves $+1.63$.
+
+\begin{table}[t]
+\caption{Payoff landscape for conventional vs.\ optimized play (500~matchups, mean values).}
+\label{tab:triangle}
+\vskip 0.1in
+\centering
+\small
+\begin{tabular}{lc}
+\toprule
+Scenario & Payoff (P1 perspective) \\
+\midrule
+BC worst-case & $-1.19$ \\
+Nash value $V^*$ & $+0.22$ \\
+BC-vs-BC & $+0.20$ \\
+Best-response to BC & $+1.63$ \\
+\midrule
+\textbf{Price of convention} & \textbf{1.41} (vs.\ optimizer) \\
+ & \textbf{0.02} (vs.\ convention) \\
+\bottomrule
+\end{tabular}
+\vskip -0.1in
+\end{table}
+
+\textbf{Experts are maximally different from Nash.} Total variation distance between BC and Nash strategies is 0.99. Nash equilibria concentrate on just 2.7 actions on average, while BC spreads mass across ${\sim}95$ actions. Only 1.3\% of BC's probability mass falls on Nash-support actions (median 0.19\%). By every measure, expert play is nothing like Nash.
+
+\textbf{Convention, not strategy.} These findings connect to TurnZero's analysis of team preview \citep{brennan2026turnzero}, where an opponent ablation showed that team selection contributes only $-1.3$ percentage points to prediction accuracy---experts choose teams by convention, largely independent of the opponent. Turn-1 actions exhibit the same pattern: team-specific habits rather than opponent-adaptive strategies.
+
+%% ============================================================
+\section{Convention Is Free (and Why)}
+\label{sec:free}
+%% ============================================================
+
+Despite individual exploitability of 1.41, expert-vs-expert outcomes match Nash: the gap $p_\text{BC}^\top R\, q_\text{BC} - V^*$ is $-0.02$ [$-0.07$, $0.04$], statistically indistinguishable from zero. How can strategies that are maximally different from Nash (TV~$= 0.99$) produce the same payoffs?
+
+\subsection{The Game Is 3-Dimensional}
+
+SVD of each matchup's payoff matrix reveals effective rank 2.9 [2.8, 2.9] at 95\% energy out of ${\sim}122$ nominal actions. The top singular value captures 76\% of the Frobenius norm; the top~3 capture 96\%.
+
+\textbf{Projection test.} We project BC--Nash deviation vectors onto $R$'s singular subspaces. For player~1, $\|U_k^\top \delta_p\|^2 / \|\delta_p\|^2$ measures the fraction of deviation energy in the top-$k$ column space (analogously for player~2). Only 7.1\% [6.8\%, 7.5\%] falls in the top-3 dimensions---\textbf{93\% of deviation energy lies in the payoff null space} (Table~\ref{tab:projection}).
+
+\begin{table}[t]
+\caption{Deviation energy in top-$k$ SVD dimensions (500~matchups, 95\% bootstrap CI).}
+\label{tab:projection}
+\vskip 0.1in
+\centering
+\small
+\begin{tabular}{lcc}
+\toprule
+$k$ & Energy in top-$k$ & In null space \\
+\midrule
+1 & 0.022 [0.021, 0.024] & 0.978 \\
+3 & 0.071 [0.068, 0.075] & \textbf{0.929} \\
+5 & 0.101 [0.098, 0.105] & 0.899 \\
+10 & 0.151 [0.146, 0.156] & 0.849 \\
+\bottomrule
+\end{tabular}
+\vskip -0.1in
+\end{table}
+
+This explains why the bilinear interaction term vanishes. Decomposing the payoff gap:
+\begin{equation}
+\underbrace{p_\text{BC}^\top R\, q_\text{BC}}_{\text{BC-vs-BC}} - V^* = \Delta_1 + \Delta_2 + \underbrace{(p_\text{BC} - p^*)^\top R\, (q_\text{BC} - q^*)}_{\text{interaction}}
+\label{eq:decomp}
+\end{equation}
+where $\Delta_1 = {p^*}^\top R\, (q_\text{BC} - q^*)$ and $\Delta_2 = (p_\text{BC} - p^*)^\top R\, q^*$ are individual deviation costs. Over 500 matchups, $\Delta_1 = +1.03$ and $\Delta_2 = -1.02$: large terms that offset (guaranteed by the minimax theorem). The interaction term is $-0.03$ (std 0.57)---small because the deviations $\delta_p, \delta_q$ are nearly orthogonal to $R$'s column and row spaces.
+
+\textbf{Rank-reduction validation.} If the game is truly 3-dimensional, rank-$k$ approximations should preserve game-theoretic properties. Table~\ref{tab:rank_reduction} confirms: rank-3 preserves 97.2\% of exploitability.
+
+\begin{table}[t]
+\caption{Game properties under rank-$k$ approximation (500~matchups).}
+\label{tab:rank_reduction}
+\vskip 0.1in
+\centering
+\small
+\begin{tabular}{lccc}
+\toprule
+$k$ & Exploit ratio & $|\Delta V^*|$ & TV(Nash$_k$, Nash) \\
+\midrule
+1 & 0.756 & 0.444 & 0.850 \\
+3 & \textbf{0.972} & 0.144 & 0.523 \\
+5 & 0.993 & 0.053 & 0.374 \\
+10 & 1.000 & 0.027 & 0.260 \\
+\bottomrule
+\end{tabular}
+\vskip -0.1in
+\end{table}
+
+\subsection{The Counterfactual: It's the Game, Not the Experts}
+
+If low rank makes convention free, then arbitrary strategies---not just expert ones---should achieve small gaps. We test three counterfactuals: \emph{uniform} strategies ($1/n$ over all actions), \emph{shuffled} BC (permuted action labels), and \emph{random} strategies (Dirichlet draws). Table~\ref{tab:counterfactual} presents the results.
+
+\begin{table}[t]
+\caption{Cross-play gap $p^\top R\, q - V^*$ for different strategy types (500~matchups, 50 random draws each).}
+\label{tab:counterfactual}
+\vskip 0.1in
+\centering
+\small
+\begin{tabular}{lcc}
+\toprule
+Strategy type & Mean gap & Mean $|$gap$|$ \\
+\midrule
+BC (expert) & $-0.02$ & 0.45 \\
+Uniform & $-0.02$ & 0.31 \\
+Shuffled BC & $-0.02$ & 0.36 \\
+Random (Dirichlet) & $-0.02$ & 0.32 \\
+\bottomrule
+\end{tabular}
+\vskip -0.1in
+\end{table}
+
+All strategy types achieve gaps indistinguishable from zero. The small bc\_vs\_bc gap is not evidence of expert near-optimality---it is a structural property of low-rank games. Any mixed strategy pair produces near-Nash payoffs because most strategic variation is payoff-irrelevant.
+
+\subsection{A Spectral Bound on the Price of Convention}
+
+We formalize this structural observation. Let $R = R_k + E$ where $R_k$ is the best rank-$k$ approximation (via SVD) and $\|E\|_2 = \sigma_{k+1}$ by the Eckart--Young theorem \citep{eckart1936approximation}.
+
+\begin{proposition}[Price of convention bound]
+\label{prop:bound}
+For any strategy pair $(p, q)$ in a zero-sum game with payoff matrix $R$ and Nash value $V^*$:
+\[
+|p^\top R\, q - V^*| \leq |p^\top R_k\, q - V^*_k| + 2\sigma_{k+1}
+\]
+where $V^*_k$ is the Nash value of $R_k$.
+\end{proposition}
+
+\begin{proof}
+By the triangle inequality:
+\[
+|p^\top R\, q - V^*| \leq |p^\top R\, q - p^\top R_k\, q| + |p^\top R_k\, q - V^*_k| + |V^*_k - V^*|
+\]
+For the first term: $|p^\top (R - R_k)\, q| \leq \|p\|_2 \|R - R_k\|_2 \|q\|_2 \leq \sigma_{k+1}$ since $\|p\|_2 \leq 1$ and $\|q\|_2 \leq 1$ for probability vectors. For the third term: $|V^*_k - V^*| = |{p^*_k}^\top R_k\, q^*_k - {p^*}^\top R\, q^*| \leq \sigma_{k+1}$ by the same spectral norm bound applied to the Nash strategies.
+\end{proof}
+
+When the game is effectively rank-$k$ (i.e., $\sigma_{k+1}$ is small), the first and third terms vanish. The middle term depends on the specific strategies' behavior in the rank-$k$ subspace. For VGC with $k = 3$ and $\sigma_4 / \sigma_1 \approx 0.04$, the bound gives $2\sigma_4$ as the structural cost. The empirical gap of 0.02 is well within this bound.
+
+\textbf{Payoff-weighted TV.} Reweighting TV distance by each action's contribution to payoff variance collapses the distance from 0.99 to 0.019---a 50$\times$ reduction confirming that BC--Nash divergence is payoff-irrelevant.
+
+\textbf{Robustness to model capacity.} Low rank could be an artifact of the dynamics model's action embedding. We test across three capacities (Table~\ref{tab:capacity}). PW-TV is stable at 0.019, and effective rank increases only from 2.9 to 4.3 when quadrupling the bottleneck. The highest-capacity model ($d_\text{action}=128$) has worse validation loss (526 vs.\ 445), suggesting its extra dimensions reflect overfitting noise. Low rank is a property of VGC, not a model artifact.
+
+\begin{table}[t]
+\caption{Effective rank and PW-TV across dynamics model capacities.}
+\label{tab:capacity}
+\vskip 0.1in
+\centering
+\small
+\begin{tabular}{lccc}
+\toprule
+Model & $d_\text{action}$ & Eff.\ rank & PW-TV \\
+\midrule
+dyn\_001 & 32 & 2.9 & 0.019 \\
+dyn\_002 & 64 & 3.2 & 0.019 \\
+dyn\_d128 & 128 & 4.3 & 0.019 \\
+\bottomrule
+\end{tabular}
+\vskip -0.1in
+\end{table}
+
+%% ============================================================
+\section{Where Convention Fails: Terastallization}
+\label{sec:tera}
+%% ============================================================
+
+There is one dimension where convention is costly. Terastallization is an irreversible resource in VGC: once used, it is consumed for the entire game. Experts default to conserving it---BC uses tera on turn~1 in only 25\% of matchups. Optimal play uses it 99\% of the time.
+
+\textbf{Magnitude.} Restricting the best response to BC's tera class (same tera/no-tera choice) reduces exploitability by 0.41 reward units---\textbf{30\% of total exploitability} [29\%, 32\%]. This is the single largest behavioral lever.
+
+\textbf{Aggression.} Beyond tera, best responses target opponents 79\% of the time vs.\ 52\% for BC. The joint action pattern shifts from balanced (27\% both-offensive, 50\% mixed, 23\% both-support under BC) to heavily offensive (65\% both-offensive, 29\% mixed, 6\% both-support under BR). Figure~\ref{fig:tera} visualizes both contrasts.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{../figures/fig2_tera_aggression.pdf}
+\caption{Behavioral differences between conventional (BC) and optimal (BR) play. \textbf{(a)}~Best responses terastallize almost universally (99\%) while experts conserve tera for later turns (25\%). \textbf{(b)}~Optimal play is systematically more aggressive, shifting the joint pattern from balanced to heavily offensive.}
+\label{fig:tera}
+\end{figure}
+
+\textbf{Domain interpretation.} The tension is between single-turn optimality and multi-turn strategy. Terastallization is irreversible: experts rationally conserve it for later turns when they might have more information. But our turn-1-only game theory says use it now. This gap between myopic and far-sighted optimality explains the 30\% contribution---and suggests it would shrink in a multi-turn analysis where conservation has genuine strategic value.
+
+\textbf{Matchup specificity.} A regression of exploitability on structural features yields $R^2 = 0.08$: the \emph{direction} of exploitation is systematic (tera + aggression), but the \emph{magnitude} is matchup-specific.
+
+%% ============================================================
+\section{How Far Is Convention from Nash?}
+\label{sec:distance}
+%% ============================================================
+
+Three different distance measures paint very different pictures of convention's relationship to Nash:
+
+\textbf{Total variation: maximally far.} TV $= 0.99$. In probability space, BC and Nash are essentially disjoint.
+
+\textbf{Payoff gap: indistinguishable.} $p_\text{BC}^\top R\, q_\text{BC} - V^* = -0.02$. In payoff space, they are the same.
+
+\textbf{Dynamics: 54 iterations.} Smoothed best-response dynamics initialized at BC converge from initial exploitability 2.74 to below 0.50 in 54 iterations ($\beta = 0.01$, $\eta = 0.1$), reaching 0.11 by iteration~500 (Figure~\ref{fig:br}). Expert play sits roughly 54 smoothed BR iterations from near-Nash play---a more intuitive distance than TV~$= 0.99$.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{../figures/fig3_smoothed_br.pdf}
+\caption{Smoothed best-response convergence from BC initialization. Exploitability decreases from 2.74 to below 0.50 in ${\sim}54$ iterations, reaching 0.11 at iteration~500.}
+\label{fig:br}
+\end{figure}
+
+The dissonance between these measures \emph{is} the insight. Convention lives in a different region of strategy space than Nash, but the payoff landscape is so flat along most dimensions that this distance doesn't matter. The 50$\times$ collapse from TV (0.99) to PW-TV (0.019) quantifies exactly how much of the distance is payoff-relevant.
+
+%% ============================================================
+\section{Ablations and Negative Results}
+\label{sec:ablations}
+%% ============================================================
+
+\textbf{Autoregressive BC.} An autoregressive variant with $P(a_2 \mid a_1)$ yields identical exploitability (1.41 $\to$ 1.41). Mutual information between leads' actions is 0.018~bits (effectively independent), validating the factored assumption.
+
+\textbf{Improved dynamics.} The dyn\_002 model ($d_\text{action} = 64$, lower validation loss) finds \emph{more} exploitability (1.41 $\to$ 1.52): our base estimate is a lower bound.
+
+\textbf{QRE rejection.} Quantal response equilibrium \citep{mckelvey1995quantal} fits poorly: 90\% of matchups have best-fit $\lambda \leq 0.01$ (essentially uniform), with TV(QRE, BC) $= 0.68$. Experts are far more structured than ``noisy Nash.''
+
+%% ============================================================
+\section{Discussion}
+\label{sec:discussion}
+%% ============================================================
+
+\textbf{The cost of convention.} In Pok\'emon VGC turn-1 play, convention costs 1.41 reward units against an optimizer but 0.00 against another conventional player. The price of convention is a function of both the strategy and the opponent: high against a best-responder, zero against the population. This asymmetry is fully explained by the game's low-rank structure (effective rank~3), which makes most strategic variation payoff-irrelevant.
+
+\textbf{Convention at every stage.} TurnZero found that team selection is conventional (opponent contributes $-1.3$pp). We find that turn-1 actions are also conventional. The game's low-rank structure---which we attribute to the dominance of a few key factors (type advantage, raw power, speed tier) over hundreds of nominal action combinations---makes convention free at both stages.
+
+\textbf{Structural insight: low-rank games.} Our spectral bound (Proposition~\ref{prop:bound}) suggests a general principle: in games where the payoff matrix is approximately low-rank, the price of convention is bounded by the residual spectral energy. This may apply beyond Pok\'emon to other complex games where many nominally distinct actions have similar strategic consequences---a testable prediction for future work.
+
+\textbf{The tera exception.} Terastallization accounts for 30\% of exploitability. Unlike move selection, tera is an irreversible resource with multi-turn consequences. Experts rationally conserve it; myopic game theory says spend it. This tension between single-turn and multi-turn optimality is the main limitation of our framework and the main opportunity for future work.
+
+\textbf{Limitations.} (a)~Turn-1 only: multi-turn consequences, especially for tera, are not captured. (b)~Dynamics model noise: HP MAE of 13.3 yields SNR of 3.4:1. (c)~BC-vs-BC tracking: reliable for high-stakes matchups (top quintile $r = 0.85$) but poor for low-stakes (bottom quintile $r = 0.05$; overall $R^2 = 0.59$). (d)~Regulation~G specific. (e)~Later turns with more switching may have higher effective rank.
+
+%% ============================================================
+%% Structural analysis figure
+%% ============================================================
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{../figures/fig1_sv_decay.pdf}
+\caption{Cumulative energy fraction vs.\ number of singular values, averaged over 500~matchups (5th--95th percentile envelope). The top~3 singular values capture 96\% of spectral energy, revealing that VGC turn-1 is a 3-dimensional game in a ${\sim}122$-dimensional action space.}
+\label{fig:sv}
+\end{figure}
+
+\bibliography{milestone}
+\bibliographystyle{icml2018}
+
+\end{document}

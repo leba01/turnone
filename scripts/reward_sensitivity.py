@@ -30,7 +30,9 @@ from turnone.models.dynamics import DynamicsModel
 from turnone.game.payoff import enumerate_joint_actions, build_payoff_matrix
 from turnone.game.nash import solve_nash_lp
 from turnone.game.exploitability import (
-    exploitability_from_nash, bc_strategy_from_logits, compute_strategy_values,
+    exploitability_from_nash,
+    bc_strategy_from_logits,
+    compute_strategy_values,
 )
 from turnone.eval.bootstrap import bootstrap_all
 
@@ -63,8 +65,12 @@ def _build_bc_strategies(
         opp_strat_mask_a_np = example["opp_strategic_mask_a"].numpy()
         opp_strat_mask_b_np = example["opp_strategic_mask_b"].numpy()
 
-        actions_p1 = enumerate_joint_actions(strat_mask_a_np, strat_mask_b_np, include_tera=True)
-        actions_p2 = enumerate_joint_actions(opp_strat_mask_a_np, opp_strat_mask_b_np, include_tera=True)
+        actions_p1 = enumerate_joint_actions(
+            strat_mask_a_np, strat_mask_b_np, include_tera=True
+        )
+        actions_p2 = enumerate_joint_actions(
+            opp_strat_mask_a_np, opp_strat_mask_b_np, include_tera=True
+        )
 
         if len(actions_p1) == 0 or len(actions_p2) == 0:
             skipped += 1
@@ -120,15 +126,17 @@ def _build_bc_strategies(
             actions_p2,
         )
 
-        matchups.append({
-            "idx": int(idx),
-            "state": state,
-            "field_before_np": field_before_np,
-            "actions_p1": actions_p1,
-            "actions_p2": actions_p2,
-            "bc_p1": bc_p1,
-            "bc_p2": bc_p2,
-        })
+        matchups.append(
+            {
+                "idx": int(idx),
+                "state": state,
+                "field_before_np": field_before_np,
+                "actions_p1": actions_p1,
+                "actions_p2": actions_p2,
+                "bc_p1": bc_p1,
+                "bc_p2": bc_p2,
+            }
+        )
 
     if skipped > 0:
         print(f"  Skipped {skipped} matchups (empty action space)")
@@ -148,8 +156,12 @@ def _evaluate_with_weights(
 
     for m in tqdm(matchups, desc=f"Payoff+Nash ({label})"):
         R = build_payoff_matrix(
-            dyn_model, m["state"], m["actions_p1"], m["actions_p2"],
-            m["field_before_np"], device,
+            dyn_model,
+            m["state"],
+            m["actions_p1"],
+            m["actions_p2"],
+            m["field_before_np"],
+            device,
             reward_weights=reward_weights,
         )
 
@@ -161,12 +173,14 @@ def _evaluate_with_weights(
         bc_exploit = exploitability_from_nash(m["bc_p1"], R, game_value, player=1)
         triangle = compute_strategy_values(m["bc_p1"], m["bc_p2"], R, game_value)
 
-        details.append({
-            "idx": m["idx"],
-            "game_value": float(game_value),
-            "bc_exploitability": float(bc_exploit),
-            **triangle,
-        })
+        details.append(
+            {
+                "idx": m["idx"],
+                "game_value": float(game_value),
+                "bc_exploitability": float(bc_exploit),
+                **triangle,
+            }
+        )
 
     if len(details) == 0:
         return {"n_matchups": 0}
@@ -178,14 +192,19 @@ def _evaluate_with_weights(
     br_to_bc = np.array([d["best_response_to_bc"] for d in details])
     gap = bc_vs_bc - game_vals
 
-    boot = bootstrap_all({
-        "bc_exploitability": exploits,
-        "game_value": game_vals,
-        "bc_vs_bc": bc_vs_bc,
-        "bc_worst_case": bc_worst,
-        "best_response_to_bc": br_to_bc,
-        "bc_vs_bc_minus_nash": gap,
-    }, n_resamples=10_000, ci=0.95, seed=42)
+    boot = bootstrap_all(
+        {
+            "bc_exploitability": exploits,
+            "game_value": game_vals,
+            "bc_vs_bc": bc_vs_bc,
+            "bc_worst_case": bc_worst,
+            "best_response_to_bc": br_to_bc,
+            "bc_vs_bc_minus_nash": gap,
+        },
+        n_resamples=10_000,
+        ci=0.95,
+        seed=42,
+    )
 
     return {
         "reward_weights": reward_weights,
@@ -222,7 +241,7 @@ def main():
     parser.add_argument("--dyn_ckpt", required=True)
     parser.add_argument("--test_split", required=True)
     parser.add_argument("--vocab_path", required=True)
-    parser.add_argument("--n_matchups", type=int, default=200)
+    parser.add_argument("--n_matchups", type=int, default=500)
     parser.add_argument("--w_ko_values", type=float, nargs="+", default=[1.0, 3.0, 5.0])
     parser.add_argument("--out_dir", required=True)
     parser.add_argument("--seed", type=int, default=42)
@@ -244,7 +263,9 @@ def main():
 
     # Phase 0: build BC strategies (once, reward-independent)
     rng = np.random.RandomState(args.seed)
-    indices = rng.choice(len(dataset), size=min(args.n_matchups, len(dataset)), replace=False)
+    indices = rng.choice(
+        len(dataset), size=min(args.n_matchups, len(dataset)), replace=False
+    )
     matchups = _build_bc_strategies(bc_model, dataset, indices, device)
 
     # Sweep w_ko values
@@ -256,27 +277,39 @@ def main():
 
         result = _evaluate_with_weights(dyn_model, matchups, rw, device)
 
-        print(f"  BC exploitability (mean): {result['bc_exploitability_mean']:.4f}  "
-              f"CI {result['bc_exploitability_mean_ci']}")
-        print(f"  Nash value (mean):        {result['game_value_mean']:.4f}  "
-              f"CI {result['game_value_mean_ci']}")
-        print(f"  BC-vs-BC (mean):          {result['bc_vs_bc_mean']:.4f}  "
-              f"CI {result['bc_vs_bc_mean_ci']}")
-        print(f"  BC-vs-BC - Nash (mean):   {result['bc_vs_bc_minus_nash_mean']:.4f}  "
-              f"CI {result['bc_vs_bc_minus_nash_mean_ci']}")
+        print(
+            f"  BC exploitability (mean): {result['bc_exploitability_mean']:.4f}  "
+            f"CI {result['bc_exploitability_mean_ci']}"
+        )
+        print(
+            f"  Nash value (mean):        {result['game_value_mean']:.4f}  "
+            f"CI {result['game_value_mean_ci']}"
+        )
+        print(
+            f"  BC-vs-BC (mean):          {result['bc_vs_bc_mean']:.4f}  "
+            f"CI {result['bc_vs_bc_mean_ci']}"
+        )
+        print(
+            f"  BC-vs-BC - Nash (mean):   {result['bc_vs_bc_minus_nash_mean']:.4f}  "
+            f"CI {result['bc_vs_bc_minus_nash_mean_ci']}"
+        )
         print(f"  Time: {time.time() - t0:.1f}s")
 
         all_results[f"w_ko_{w_ko}"] = result
 
     # Summary table
     print("\n\n=== SUMMARY ===")
-    print(f"{'w_ko':>6}  {'exploit':>10}  {'nash_val':>10}  {'bc_vs_bc':>10}  {'gap':>10}")
+    print(
+        f"{'w_ko':>6}  {'exploit':>10}  {'nash_val':>10}  {'bc_vs_bc':>10}  {'gap':>10}"
+    )
     print("-" * 55)
     for w_ko in args.w_ko_values:
         r = all_results[f"w_ko_{w_ko}"]
-        print(f"{w_ko:>6.1f}  {r['bc_exploitability_mean']:>10.4f}  "
-              f"{r['game_value_mean']:>10.4f}  {r['bc_vs_bc_mean']:>10.4f}  "
-              f"{r['bc_vs_bc_minus_nash_mean']:>10.4f}")
+        print(
+            f"{w_ko:>6.1f}  {r['bc_exploitability_mean']:>10.4f}  "
+            f"{r['game_value_mean']:>10.4f}  {r['bc_vs_bc_mean']:>10.4f}  "
+            f"{r['bc_vs_bc_minus_nash_mean']:>10.4f}"
+        )
 
     with open(out_dir / "reward_sensitivity.json", "w") as f:
         json.dump(all_results, f, indent=2)

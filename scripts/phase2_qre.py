@@ -161,11 +161,16 @@ def main():
     parser = argparse.ArgumentParser(description="Phase 2 Exp 2: QRE path analysis")
     parser.add_argument("--cache", required=True, help="Path to cache.pkl")
     parser.add_argument("--out", required=True, help="Output JSON path")
-    parser.add_argument("--n_matchups", type=int, default=200,
-                        help="Number of matchups to analyze (for speed)")
+    parser.add_argument(
+        "--n_matchups", type=int, default=500, help="Number of matchups to analyze"
+    )
     parser.add_argument("--n_workers", type=int, default=8)
-    parser.add_argument("--lambdas", type=float, nargs="+",
-                        default=[0.01, 0.05, 0.1, 0.25, 0.5, 1, 2, 5, 10, 25, 50, 100])
+    parser.add_argument(
+        "--lambdas",
+        type=float,
+        nargs="+",
+        default=[0.01, 0.05, 0.1, 0.25, 0.5, 1, 2, 5, 10, 25, 50, 100],
+    )
     args = parser.parse_args()
 
     with open(args.cache, "rb") as f:
@@ -173,13 +178,21 @@ def main():
     print(f"Loaded {len(matchups)} matchups from cache")
 
     # Use first n_matchups (they're already randomly sampled)
-    matchups = matchups[:args.n_matchups]
+    matchups = matchups[: args.n_matchups]
     print(f"Using {len(matchups)} matchups")
 
     # Build work items
     work = [
-        (m["idx"], m["R"], m["bc_p1"], m["bc_p2"],
-         m["nash_p1"], m["nash_p2"], m["game_value"], args.lambdas)
+        (
+            m["idx"],
+            m["R"],
+            m["bc_p1"],
+            m["bc_p2"],
+            m["nash_p1"],
+            m["nash_p2"],
+            m["game_value"],
+            args.lambdas,
+        )
         for m in matchups
     ]
 
@@ -188,16 +201,19 @@ def main():
     if args.n_workers > 1 and len(work) > 1:
         with ProcessPoolExecutor(max_workers=args.n_workers) as executor:
             futures = {executor.submit(analyze_matchup, w): w[0] for w in work}
-            for future in tqdm(as_completed(futures), total=len(futures),
-                               desc="QRE analysis"):
+            for future in tqdm(
+                as_completed(futures), total=len(futures), desc="QRE analysis"
+            ):
                 results.append(future.result())
     else:
         for w in tqdm(work, desc="QRE analysis"):
             results.append(analyze_matchup(w))
 
     # Aggregate: QRE path curves
-    print(f"\n{'lambda':>8}  {'TV→BC':>8}  {'TV→Nash':>8}  {'QRE val':>8}  "
-          f"{'exploit':>8}  {'entropy':>8}  {'conv%':>6}")
+    print(
+        f"\n{'lambda':>8}  {'TV→BC':>8}  {'TV→Nash':>8}  {'QRE val':>8}  "
+        f"{'exploit':>8}  {'entropy':>8}  {'conv%':>6}"
+    )
     print("-" * 70)
 
     agg_by_lambda = {}
@@ -225,9 +241,11 @@ def main():
         }
 
         flag = "" if conv_rate > 0.95 else " *"
-        print(f"{lam:>8.2f}  {tv_bc.mean():>8.3f}  {tv_nash.mean():>8.3f}  "
-              f"{qre_val.mean():>8.3f}  {exploit.mean():>8.3f}  "
-              f"{entropy_p1.mean():>8.2f}  {conv_rate*100:>5.1f}{flag}")
+        print(
+            f"{lam:>8.2f}  {tv_bc.mean():>8.3f}  {tv_nash.mean():>8.3f}  "
+            f"{qre_val.mean():>8.3f}  {exploit.mean():>8.3f}  "
+            f"{entropy_p1.mean():>8.2f}  {conv_rate * 100:>5.1f}{flag}"
+        )
 
     print("(* = <95% convergence — results unreliable at this lambda)")
 
@@ -243,7 +261,7 @@ def main():
     for lam in args.lambdas:
         frac = float((best_lambdas == lam).mean())
         if frac > 0:
-            print(f"  λ={lam}: {frac*100:.1f}%")
+            print(f"  λ={lam}: {frac * 100:.1f}%")
 
     print(f"\nAt best-fit λ*:")
     print(f"  TV(QRE, BC) mean: {best_fit_tvs.mean():.3f}")
@@ -251,7 +269,9 @@ def main():
     print(f"  BC exploitability mean: {bc_exploits.mean():.3f}")
     print(f"  QRE value mean: {best_fit_values.mean():.4f}")
     print(f"  Nash value mean: {game_values.mean():.4f}")
-    print(f"  |QRE value - V*| mean: {np.abs(best_fit_values - game_values).mean():.4f}")
+    print(
+        f"  |QRE value - V*| mean: {np.abs(best_fit_values - game_values).mean():.4f}"
+    )
 
     # Bootstrap CIs for key metrics
     boot_data = {
@@ -276,8 +296,7 @@ def main():
         "qre_path": agg_by_lambda,
         "best_fit": {
             "lambda_distribution": {
-                str(lam): float((best_lambdas == lam).mean())
-                for lam in args.lambdas
+                str(lam): float((best_lambdas == lam).mean()) for lam in args.lambdas
             },
             "tv_mean": float(best_fit_tvs.mean()),
             "exploit_mean": float(best_fit_exploits.mean()),
@@ -286,8 +305,7 @@ def main():
             "bootstrap": boot_results,
         },
         "per_matchup": [
-            {k: v for k, v in r.items() if k != "by_lambda"}
-            for r in results
+            {k: v for k, v in r.items() if k != "by_lambda"} for r in results
         ],
     }
 

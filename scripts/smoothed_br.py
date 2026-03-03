@@ -31,13 +31,15 @@ from turnone.models.dynamics import DynamicsModel
 from turnone.game.payoff import enumerate_joint_actions, build_payoff_matrix
 from turnone.game.nash import solve_nash_lp
 from turnone.game.exploitability import (
-    exploitability_from_nash, bc_strategy_from_logits,
+    exploitability_from_nash,
+    bc_strategy_from_logits,
 )
 
 
 # ---------------------------------------------------------------------------
 # Phase 0 (GPU): Build payoff matrices + BC strategies + solve Nash
 # ---------------------------------------------------------------------------
+
 
 def _build_matchups(
     bc_model: BCPolicy,
@@ -58,8 +60,12 @@ def _build_matchups(
         opp_strat_mask_a_np = example["opp_strategic_mask_a"].numpy()
         opp_strat_mask_b_np = example["opp_strategic_mask_b"].numpy()
 
-        actions_p1 = enumerate_joint_actions(strat_mask_a_np, strat_mask_b_np, include_tera=True)
-        actions_p2 = enumerate_joint_actions(opp_strat_mask_a_np, opp_strat_mask_b_np, include_tera=True)
+        actions_p1 = enumerate_joint_actions(
+            strat_mask_a_np, strat_mask_b_np, include_tera=True
+        )
+        actions_p2 = enumerate_joint_actions(
+            opp_strat_mask_a_np, opp_strat_mask_b_np, include_tera=True
+        )
 
         if len(actions_p1) == 0 or len(actions_p2) == 0:
             skipped += 1
@@ -75,8 +81,12 @@ def _build_matchups(
         field_before_np = example["field_state"].numpy()
 
         R = build_payoff_matrix(
-            dyn_model, state, actions_p1, actions_p2,
-            field_before_np, device,
+            dyn_model,
+            state,
+            actions_p1,
+            actions_p2,
+            field_before_np,
+            device,
         )
 
         # Solve Nash
@@ -125,15 +135,17 @@ def _build_matchups(
             actions_p2,
         )
 
-        matchups.append({
-            "idx": int(idx),
-            "R": R,
-            "bc_p1": bc_p1,
-            "bc_p2": bc_p2,
-            "nash_p1": nash_p1,
-            "nash_p2": nash_p2,
-            "game_value": float(game_value),
-        })
+        matchups.append(
+            {
+                "idx": int(idx),
+                "R": R,
+                "bc_p1": bc_p1,
+                "bc_p2": bc_p2,
+                "nash_p1": nash_p1,
+                "nash_p2": nash_p2,
+                "game_value": float(game_value),
+            }
+        )
 
     if skipped > 0:
         print(f"  Skipped {skipped} matchups (empty action space or LP failure)")
@@ -144,6 +156,7 @@ def _build_matchups(
 # ---------------------------------------------------------------------------
 # Phase 1 (CPU): Smoothed best-response dynamics
 # ---------------------------------------------------------------------------
+
 
 def _softmax(x: np.ndarray) -> np.ndarray:
     """Numerically stable softmax."""
@@ -188,8 +201,12 @@ def _run_smoothed_br(args: tuple) -> dict:
                 total_exploit = exploit_p1 + exploit_p2
 
                 # Time-averaged exploitability (the one that should → 0)
-                avg_exploit_p1 = exploitability_from_nash(x_avg, R, game_value, player=1)
-                avg_exploit_p2 = exploitability_from_nash(y_avg, R, game_value, player=2)
+                avg_exploit_p1 = exploitability_from_nash(
+                    x_avg, R, game_value, player=1
+                )
+                avg_exploit_p2 = exploitability_from_nash(
+                    y_avg, R, game_value, player=2
+                )
                 avg_total_exploit = avg_exploit_p1 + avg_exploit_p2
 
                 tv_to_nash_p1 = 0.5 * float(np.abs(x_avg - nash_p1).sum())
@@ -197,24 +214,26 @@ def _run_smoothed_br(args: tuple) -> dict:
 
                 value = float(x @ R @ y)
 
-                trajectory.append({
-                    "t": t,
-                    "exploit": float(total_exploit),
-                    "avg_exploit": float(avg_total_exploit),
-                    "avg_tv_p1": tv_to_nash_p1,
-                    "avg_tv_p2": tv_to_nash_p2,
-                    "value": value,
-                })
+                trajectory.append(
+                    {
+                        "t": t,
+                        "exploit": float(total_exploit),
+                        "avg_exploit": float(avg_total_exploit),
+                        "avg_tv_p1": tv_to_nash_p1,
+                        "avg_tv_p2": tv_to_nash_p2,
+                        "value": value,
+                    }
+                )
 
                 if t < n_iters:
                     # Simultaneous update
                     # P1: best-responds to P2's strategy y
-                    payoffs_p1 = R @ y           # (n1,) expected payoff per P1 action
+                    payoffs_p1 = R @ y  # (n1,) expected payoff per P1 action
                     sbr_p1 = _softmax(payoffs_p1 / beta)
                     x_new = (1 - eta) * x + eta * sbr_p1
 
                     # P2: best-responds to P1's strategy x (minimizes P1's payoff)
-                    payoffs_p2 = x @ R           # (n2,) P1's expected payoff per P2 action
+                    payoffs_p2 = x @ R  # (n2,) P1's expected payoff per P2 action
                     sbr_p2 = _softmax(-payoffs_p2 / beta)  # Negate: P2 minimizes
                     y_new = (1 - eta) * y + eta * sbr_p2
 
@@ -238,8 +257,12 @@ def _run_smoothed_br(args: tuple) -> dict:
         "game_value": game_value,
         "n_actions_p1": R.shape[0],
         "n_actions_p2": R.shape[1],
-        "initial_exploit_p1": float(exploitability_from_nash(bc_p1, R, game_value, player=1)),
-        "initial_exploit_p2": float(exploitability_from_nash(bc_p2, R, game_value, player=2)),
+        "initial_exploit_p1": float(
+            exploitability_from_nash(bc_p1, R, game_value, player=1)
+        ),
+        "initial_exploit_p2": float(
+            exploitability_from_nash(bc_p2, R, game_value, player=2)
+        ),
         "params": results_by_param,
     }
 
@@ -247,6 +270,7 @@ def _run_smoothed_br(args: tuple) -> dict:
 # ---------------------------------------------------------------------------
 # Aggregation
 # ---------------------------------------------------------------------------
+
 
 def _aggregate_trajectories(
     all_results: list[dict],
@@ -295,10 +319,14 @@ def _aggregate_trajectories(
                     "avg_exploit": np.median(avg_exploit_matrix, axis=0).tolist(),
                 },
                 "p25_trajectory": {
-                    "avg_exploit": np.percentile(avg_exploit_matrix, 25, axis=0).tolist(),
+                    "avg_exploit": np.percentile(
+                        avg_exploit_matrix, 25, axis=0
+                    ).tolist(),
                 },
                 "p75_trajectory": {
-                    "avg_exploit": np.percentile(avg_exploit_matrix, 75, axis=0).tolist(),
+                    "avg_exploit": np.percentile(
+                        avg_exploit_matrix, 75, axis=0
+                    ).tolist(),
                 },
                 "final_avg_exploit_mean": float(final_avg_exploits.mean()),
                 "final_avg_exploit_median": float(np.median(final_avg_exploits)),
@@ -313,14 +341,17 @@ def _aggregate_trajectories(
 # Main
 # ---------------------------------------------------------------------------
 
+
 def main():
     parser = argparse.ArgumentParser(description="Smoothed best-response convergence")
     parser.add_argument("--bc_ckpt", required=True)
     parser.add_argument("--dyn_ckpt", required=True)
     parser.add_argument("--test_split", required=True)
     parser.add_argument("--vocab_path", required=True)
-    parser.add_argument("--n_matchups", type=int, default=200)
-    parser.add_argument("--betas", type=float, nargs="+", default=[0.01, 0.05, 0.1, 0.5, 1.0])
+    parser.add_argument("--n_matchups", type=int, default=500)
+    parser.add_argument(
+        "--betas", type=float, nargs="+", default=[0.01, 0.05, 0.1, 0.5, 1.0]
+    )
     parser.add_argument("--etas", type=float, nargs="+", default=[0.1, 0.3])
     parser.add_argument("--n_iters", type=int, default=500)
     parser.add_argument("--n_workers", type=int, default=8)
@@ -344,21 +375,34 @@ def main():
 
     # Phase 0: GPU — build payoff matrices + BC + Nash
     rng = np.random.RandomState(args.seed)
-    indices = rng.choice(len(dataset), size=min(args.n_matchups, len(dataset)), replace=False)
+    indices = rng.choice(
+        len(dataset), size=min(args.n_matchups, len(dataset)), replace=False
+    )
 
     t0 = time.time()
     matchups = _build_matchups(bc_model, dyn_model, dataset, indices, device)
     print(f"Phase 0 time: {time.time() - t0:.1f}s")
 
     # Phase 1: CPU parallel — smoothed BR dynamics
-    print(f"\nPhase 1: Smoothed BR ({len(matchups)} matchups × "
-          f"{len(args.betas)*len(args.etas)} param combos × {args.n_iters} iters)...")
+    print(
+        f"\nPhase 1: Smoothed BR ({len(matchups)} matchups × "
+        f"{len(args.betas) * len(args.etas)} param combos × {args.n_iters} iters)..."
+    )
     t1 = time.time()
 
     matchup_args = [
-        (m["idx"], m["R"], m["bc_p1"], m["bc_p2"],
-         m["nash_p1"], m["nash_p2"], m["game_value"],
-         args.betas, args.etas, args.n_iters)
+        (
+            m["idx"],
+            m["R"],
+            m["bc_p1"],
+            m["bc_p2"],
+            m["nash_p1"],
+            m["nash_p2"],
+            m["game_value"],
+            args.betas,
+            args.etas,
+            args.n_iters,
+        )
         for m in matchups
     ]
 
@@ -366,11 +410,11 @@ def main():
     if args.n_workers > 1 and len(matchup_args) > 1:
         with ProcessPoolExecutor(max_workers=args.n_workers) as executor:
             futures = {
-                executor.submit(_run_smoothed_br, ma): ma[0]
-                for ma in matchup_args
+                executor.submit(_run_smoothed_br, ma): ma[0] for ma in matchup_args
             }
             for future in tqdm(
-                as_completed(futures), total=len(futures),
+                as_completed(futures),
+                total=len(futures),
                 desc="Phase 1: Smoothed BR (CPU parallel)",
             ):
                 all_results.append(future.result())
@@ -385,16 +429,19 @@ def main():
     agg = _aggregate_trajectories(all_results, args.betas, args.etas, args.n_iters)
 
     # Print summary
-    print(f"\n{'='*70}")
+    print(f"\n{'=' * 70}")
     print(f"SMOOTHED BR CONVERGENCE ({len(all_results)} matchups)")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
 
-    init_exploit = np.mean([r["initial_exploit_p1"] + r["initial_exploit_p2"]
-                            for r in all_results])
+    init_exploit = np.mean(
+        [r["initial_exploit_p1"] + r["initial_exploit_p2"] for r in all_results]
+    )
     print(f"Initial exploitability (BC): {init_exploit:.4f}")
 
-    print(f"\n{'beta':>6}  {'eta':>5}  {'QRE exploit':>12}  {'avg exploit':>12}  "
-          f"{'converged%':>10}")
+    print(
+        f"\n{'beta':>6}  {'eta':>5}  {'QRE exploit':>12}  {'avg exploit':>12}  "
+        f"{'converged%':>10}"
+    )
     print("-" * 55)
 
     for beta in args.betas:
@@ -403,20 +450,26 @@ def main():
             a = agg[key]
             # QRE exploit = instantaneous final, avg exploit = time-averaged final
             qre = a["mean_trajectory"]["exploit"][-1]
-            print(f"{beta:>6.2f}  {eta:>5.1f}  {qre:>12.4f}  "
-                  f"{a['final_avg_exploit_mean']:>12.4f}  "
-                  f"{a['converged_fraction']*100:>9.1f}%")
+            print(
+                f"{beta:>6.2f}  {eta:>5.1f}  {qre:>12.4f}  "
+                f"{a['final_avg_exploit_mean']:>12.4f}  "
+                f"{a['converged_fraction'] * 100:>9.1f}%"
+            )
 
     # Save aggregated results (without per-matchup raw trajectories for size)
     with open(out_dir / "smoothed_br.json", "w") as f:
-        json.dump({
-            "n_matchups": len(all_results),
-            "betas": args.betas,
-            "etas": args.etas,
-            "n_iters": args.n_iters,
-            "initial_exploit_mean": float(init_exploit),
-            "aggregated": agg,
-        }, f, indent=2)
+        json.dump(
+            {
+                "n_matchups": len(all_results),
+                "betas": args.betas,
+                "etas": args.etas,
+                "n_iters": args.n_iters,
+                "initial_exploit_mean": float(init_exploit),
+                "aggregated": agg,
+            },
+            f,
+            indent=2,
+        )
 
     # Save per-matchup details (larger file, for detailed analysis)
     # Strip full trajectories, keep only summaries per matchup

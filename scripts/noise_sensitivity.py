@@ -78,7 +78,9 @@ def noise_sensitivity_single(
 
         # Exploitability change (using CLEAN R to evaluate noisy strategy)
         noisy_exploit = exploitability_from_nash(noisy_p1, R, clean_value, player=1)
-        exploit_changes.append(float(noisy_exploit - 0.0))  # Nash should be 0, noisy may not be
+        exploit_changes.append(
+            float(noisy_exploit - 0.0)
+        )  # Nash should be 0, noisy may not be
 
         value_changes.append(float(abs(noisy_value - clean_value)))
 
@@ -108,15 +110,26 @@ def main():
     parser.add_argument("--dyn_ckpt", required=True)
     parser.add_argument("--test_split", required=True)
     parser.add_argument("--vocab_path", required=True)
-    parser.add_argument("--reward_mae", type=float, default=None,
-                        help="Measured reward MAE (noise calibration). If not given, reads from dynamics_metrics.json")
-    parser.add_argument("--metrics_json", default="results/dynamics_metrics.json",
-                        help="Path to dynamics_metrics.json for auto-calibration")
-    parser.add_argument("--n_matchups", type=int, default=50)
-    parser.add_argument("--n_trials", type=int, default=20)
-    parser.add_argument("--noise_scales", type=float, nargs="+",
-                        default=[0.25, 0.5, 1.0, 1.5, 2.0],
-                        help="Multipliers for reward_mae to sweep noise levels")
+    parser.add_argument(
+        "--reward_mae",
+        type=float,
+        default=None,
+        help="Measured reward MAE (noise calibration). If not given, reads from dynamics_metrics.json",
+    )
+    parser.add_argument(
+        "--metrics_json",
+        default="results/dynamics_metrics.json",
+        help="Path to dynamics_metrics.json for auto-calibration",
+    )
+    parser.add_argument("--n_matchups", type=int, default=500)
+    parser.add_argument("--n_trials", type=int, default=100)
+    parser.add_argument(
+        "--noise_scales",
+        type=float,
+        nargs="+",
+        default=[0.25, 0.5, 1.0, 1.5, 2.0],
+        help="Multipliers for reward_mae to sweep noise levels",
+    )
     parser.add_argument("--out_dir", required=True)
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
@@ -150,7 +163,9 @@ def main():
 
     # Sample matchups
     rng = np.random.RandomState(args.seed)
-    indices = rng.choice(len(dataset), size=min(args.n_matchups, len(dataset)), replace=False)
+    indices = rng.choice(
+        len(dataset), size=min(args.n_matchups, len(dataset)), replace=False
+    )
 
     # Build payoff matrices + BC strategies
     print(f"Building {len(indices)} payoff matrices...")
@@ -166,8 +181,12 @@ def main():
         opp_strat_mask_a_np = example["opp_strategic_mask_a"].numpy()
         opp_strat_mask_b_np = example["opp_strategic_mask_b"].numpy()
 
-        actions_p1 = enumerate_joint_actions(strat_mask_a_np, strat_mask_b_np, include_tera=True)
-        actions_p2 = enumerate_joint_actions(opp_strat_mask_a_np, opp_strat_mask_b_np, include_tera=True)
+        actions_p1 = enumerate_joint_actions(
+            strat_mask_a_np, strat_mask_b_np, include_tera=True
+        )
+        actions_p2 = enumerate_joint_actions(
+            opp_strat_mask_a_np, opp_strat_mask_b_np, include_tera=True
+        )
 
         if len(actions_p1) == 0 or len(actions_p2) == 0:
             continue
@@ -181,8 +200,12 @@ def main():
         }
 
         R = build_payoff_matrix(
-            dyn_model, state, actions_p1, actions_p2,
-            example["field_state"].numpy(), device,
+            dyn_model,
+            state,
+            actions_p1,
+            actions_p2,
+            example["field_state"].numpy(),
+            device,
         )
 
         with torch.no_grad():
@@ -216,8 +239,11 @@ def main():
         per_matchup = []
         for idx, R, bc_strat in tqdm(matchups, desc=f"Scale {scale}x"):
             result = noise_sensitivity_single(
-                R, bc_strat, noise_std,
-                n_trials=args.n_trials, seed=args.seed + idx,
+                R,
+                bc_strat,
+                noise_std,
+                n_trials=args.n_trials,
+                seed=args.seed + idx,
             )
             if result is not None:
                 result["idx"] = idx
@@ -243,9 +269,15 @@ def main():
         }
         all_results[f"scale_{scale}"] = summary
 
-        print(f"  TV distance: {summary['tv_distance_mean']:.4f} +/- {summary['tv_distance_std']:.4f}")
-        print(f"  Noisy exploit: {summary['noisy_exploit_mean']:.4f} +/- {summary['noisy_exploit_std']:.4f}")
-        print(f"  Value change: {summary['value_change_mean']:.4f} +/- {summary['value_change_std']:.4f}")
+        print(
+            f"  TV distance: {summary['tv_distance_mean']:.4f} +/- {summary['tv_distance_std']:.4f}"
+        )
+        print(
+            f"  Noisy exploit: {summary['noisy_exploit_mean']:.4f} +/- {summary['noisy_exploit_std']:.4f}"
+        )
+        print(
+            f"  Value change: {summary['value_change_mean']:.4f} +/- {summary['value_change_std']:.4f}"
+        )
 
     with open(out_dir / "noise_sensitivity.json", "w") as f:
         json.dump(all_results, f, indent=2)
