@@ -18,8 +18,8 @@ docs/DECISIONS.md
 docs/cost_of_convention_plan.md
 
 # Milestone (submitted separately, not part of repo)
-writeup/milestone.tex
-writeup/milestone.pdf
+paper/milestone.tex
+paper/milestone.pdf
 
 # LaTeX build artifacts
 *.aux
