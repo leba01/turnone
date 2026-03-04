@@ -151,11 +151,11 @@ def fig3_smoothed_br():
     best_cfg = data["aggregated"]["beta=0.01_eta=0.1"]
 
     mt = best_cfg.get("mean_trajectory", {})
-    traj = mt.get("avg_exploit", []) if isinstance(mt, dict) else []
+    traj = mt.get("exploit", []) if isinstance(mt, dict) else []
     p25_mt = best_cfg.get("p25_trajectory", {})
     p75_mt = best_cfg.get("p75_trajectory", {})
-    p25 = p25_mt.get("avg_exploit") if isinstance(p25_mt, dict) else None
-    p75 = p75_mt.get("avg_exploit") if isinstance(p75_mt, dict) else None
+    p25 = p25_mt.get("exploit") if isinstance(p25_mt, dict) else None
+    p75 = p75_mt.get("exploit") if isinstance(p75_mt, dict) else None
 
     fig, ax = plt.subplots(figsize=(3.4, 2.4))
 
@@ -175,13 +175,13 @@ def fig3_smoothed_br():
                 label="IQR",
             )
 
-        # Mark the 54-iteration point (exploit < 0.5)
-        if len(traj) > 54:
-            ax.axvline(54, color="C3", linestyle=":", linewidth=0.8, alpha=0.7)
+        # Mark the 19-iteration point (exploit < 0.5)
+        if len(traj) > 19:
+            ax.axvline(19, color="C3", linestyle=":", linewidth=0.8, alpha=0.7)
             ax.annotate(
-                f"iter 54: {traj[54]:.2f}",
-                xy=(54, traj[54]),
-                xytext=(160, traj[54] + 0.5),
+                f"iter 19: {traj[19]:.2f}",
+                xy=(19, traj[19]),
+                xytext=(160, traj[19] + 0.5),
                 fontsize=7,
                 arrowprops=dict(arrowstyle="->", color="C3", lw=0.8),
             )
