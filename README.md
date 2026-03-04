@@ -1,37 +1,187 @@
 # TurnOne
 
-**TL;DR**: We figured out how exploitable top Pokemon players are on turn 1 — and discovered that expert play only *looks* optimal because everyone is bad in the same way.
+**The Cost of Convention in Low-Rank Games**
 
-## What is this?
+Lucas Brennan-Almaraz · Stanford CS234 · Winter 2025--26
 
-In competitive Pokemon VGC (doubles), both players pick moves simultaneously on turn 1. This is a game theory problem: there's a mathematically optimal mixed strategy (Nash equilibrium), and we can measure how far real experts are from it.
+[[Paper (PDF)]](paper/final.pdf) · ![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
 
-## What did we find?
+---
 
-1. **Experts are exploitable.** If you knew exactly how the average top player picks moves, you could punish them for ~1.4 reward units per turn. They're predictable — they always go for the popular aggressive play.
+In competitive Pokémon VGC (doubles), both players pick moves simultaneously on turn 1. This is a game theory problem: there's a mathematically optimal mixed strategy (Nash equilibrium), and we can measure how far real experts are from it. There's a classic sports economics result that penalty kick shooters in soccer play Nash equilibrium (Chiappori 2002, Palacios-Huerta 2003) --- but that's a 2x2 game (left/right). We study the same phenomenon in a game with hundreds of actions per side, and we can decompose *why* it happens: error cancellation, not individual optimality.
 
-2. **But expert-vs-expert looks optimal.** When two experts play each other, the outcome matches what Nash equilibrium predicts. So are experts secretly geniuses?
+### Key Findings
 
-3. **No — it's a coincidence of symmetric errors.** We decomposed the expert-vs-expert value and found that Player 1 loses against a Nash opponent by ~1.0, and Player 2 gives away ~1.0 to a Nash opponent. These errors cancel perfectly. Every single matchup (500/500) shows this pattern. Experts aren't individually near-optimal — they're symmetrically suboptimal.
+1. **Experts are exploitable.** If you knew exactly how the average top player picks moves, you could punish them for ~1.4 reward units per turn. They're predictable --- they always go for the popular aggressive play.
+
+2. **But expert-vs-expert is statistically indistinguishable from Nash.** When two experts play each other, the payoff gap from Nash is 0.019 with a 95% CI of [−0.07, 0.04] --- spanning zero. So are experts secretly geniuses?
+
+3. **No --- it's a coincidence of symmetric errors.** We decomposed the expert-vs-expert value and found that Player 1 loses against a Nash opponent by ~1.0, and Player 2 gives away ~1.0 to a Nash opponent. These errors cancel perfectly. Every single matchup (500/500) shows this pattern. Experts aren't individually near-optimal --- they're symmetrically suboptimal.
 
 4. **Nash plays completely differently.** The optimal strategy uses ~3 actions with heavy Protect and defensive plays. Experts spread weight across ~95 actions and favor aggression. Total variation distance: 0.99 out of 1.0 (basically zero overlap).
 
-5. **You can learn Nash from expert play.** Starting from expert strategies and iteratively best-responding, you converge toward Nash in ~500 steps — a 96% reduction in exploitability.
+5. **You can learn Nash from expert play.** Starting from expert strategies and iteratively best-responding, you converge toward Nash in ~500 steps --- a 96% reduction in exploitability.
 
-## How?
+6. **Most of those actions are redundant.** SVD analysis of the payoff matrices reveals an effective rank of 2.9 out of ~122 actions. The game is 3-dimensional wearing a 122-dimensional disguise --- convention is free because most strategic variation is payoff-irrelevant. This is the structural reason why symmetric errors cancel: there just aren't enough payoff-relevant directions for experts to go wrong in different ways.
+
+### Results
+
+500 matchups, 95% bootstrap CIs (B = 1000).
+
+| Metric | Value | 95% CI |
+|:---|:---:|:---:|
+| BC exploitability | 1.41 | [1.36, 1.46] |
+| TV distance (BC vs Nash) | 0.99 | [0.98, 0.99] |
+| Expert-vs-expert payoff gap | 0.019 | [−0.07, 0.04] |
+| Effective rank (95% energy) | 2.9 | [2.8, 2.9] |
+| Tera fraction of exploitability | 30% | --- |
+
+### Method
+
+This is **empirical game-theoretic analysis (EGTA)** --- but instead of a game simulator, we use a learned dynamics model. That's new.
 
 - **Behavioral cloning**: trained a neural net on 155K expert battles to learn "what do experts do?"
-- **Dynamics model**: trained a world model to predict what happens when any two moves collide
-- **Payoff matrices**: enumerated all ~200-400 valid action combos per side, scored each pair
+- **Dynamics model**: trained a world model to predict battle outcomes (HP MAE 13.3/100; signal-to-noise validated at 3.4:1 vs. noise-floor exploitability)
+- **Payoff matrices**: enumerated all ~200--400 valid action combos per side (~120x120 matrices, 500 matchups), scored each pair via the dynamics model
 - **Nash LP**: solved for the exact equilibrium via linear programming
-- **Exploitability**: measured the gap
+- **Exploitability**: measured the gap between BC play and best response
+- **SVD decomposition**: revealed the low-rank structure that explains why convention is free
 
-This is called **empirical game-theoretic analysis (EGTA)** — but instead of a game simulator, we use a learned dynamics model. That's new.
+### Where this breaks
 
-## Why is this cool?
+Everything flows through the learned dynamics model --- if it systematically compresses payoff structure, the low-rank finding could be partially artifactual. The capacity ablation (Table 5 in the paper) shows effective rank rising from 2.9 to 4.3 with a larger model, which cuts both ways. The framework is also turn-1 only: the tera finding (30% of exploitability from a cross-temporal mechanic) is basically the framework calling out its own limitation. And all results are Regulation G; generality to other formats is a conjecture, not a finding.
 
-There's a classic sports economics result: penalty kick shooters in soccer play Nash equilibrium (Chiappori 2002, Palacios-Huerta 2003). But that's a 2x2 game (left/right). We show the same phenomenon in a game with hundreds of actions per side — and we can decompose *why* it happens (error cancellation, not individual optimality). Nobody's done that before.
+### Paper Figures
 
-## Tech
+All figures generated by `scripts/generate_figures.py`.
 
-Python 3.12, PyTorch, scipy (Nash LP), numpy. Runs on a single RTX 4080 Super. CS234 (Stanford RL) project, Winter 2026.
+| Figure | What it shows |
+|:---|:---|
+| `fig1_sv_decay` | Singular value decay across 500 matchups --- effective rank ~3 |
+| `fig2_tera_aggression` | Tera and aggression decomposition of exploitability |
+| `fig3_smoothed_br` | Smoothed best-response convergence toward Nash |
+
+### Citation
+
+```bibtex
+@misc{brennan2026turnone,
+  title={TurnOne: The Cost of Convention in Low-Rank Games},
+  author={Brennan-Almaraz, Lucas},
+  year={2026},
+  note={Stanford CS234 Final Project, Winter 2025--26},
+  url={https://github.com/leba01/turnone}
+}
+```
+
+<details>
+<summary><strong>Reproducing the results</strong></summary>
+
+#### Setup
+
+```bash
+git clone https://github.com/leba01/turnone.git
+cd turnone
+uv venv --python 3.12
+source .venv/bin/activate
+uv pip install -e ".[dev]"
+```
+
+#### Data
+
+This project uses the [VGC-Bench dataset](https://huggingface.co/datasets/cameronangliss/vgc-battle-logs) (Angliss et al., AAMAS 2026). TurnOne uses the Regulation G BO3 subset. Place the raw logs in `data/raw/` before running the pipeline.
+
+#### Pipeline
+
+Each stage reads the previous stage's output. Run in order:
+
+```bash
+# 1. Parse Showdown protocol → directed match examples
+python -m turnone.data.parser \
+    --raw_path data/raw/logs-gen9vgc2025reggbo3.json \
+    --out_dir data/parsed
+
+# 2. Train behavioral cloning policy
+python -m turnone.models.train \
+    --config configs/bc_base.yaml
+
+# 3. Train dynamics model
+python -m turnone.models.train_dynamics \
+    --config configs/dynamics_base.yaml
+
+# 4. Build payoff matrices (BC + dynamics → per-matchup payoff tensors)
+python -m turnone.game.payoff
+
+# 5. Solve Nash equilibria via LP
+python -m turnone.game.nash
+
+# 6. Run analyses
+python scripts/counterfactual_analysis.py   # value decomposition + counterfactual
+python scripts/smoothed_br.py               # best-response convergence
+python scripts/phase2_qre.py                # SVD + rank analysis
+python scripts/reward_sensitivity.py        # reward ablation
+
+# 7. Generate figures
+python scripts/generate_figures.py
+```
+
+#### Tests
+
+```bash
+pytest -q
+```
+
+</details>
+
+<details>
+<summary><strong>Repository structure</strong></summary>
+
+```
+turnone/
+├── turnone/                        # Main package
+│   ├── data/                       # Data pipeline
+│   │   ├── action_space.py         #   Valid action enumeration per team
+│   │   ├── dataset.py              #   PyTorch Dataset
+│   │   ├── parser.py               #   Showdown protocol extraction
+│   │   └── io_utils.py             #   JSONL streaming I/O
+│   │
+│   ├── models/                     # Neural networks
+│   │   ├── bc_policy.py            #   Behavioral cloning policy head
+│   │   ├── dynamics.py             #   Learned dynamics (world model)
+│   │   ├── encoder.py              #   Shared Pokémon encoder
+│   │   ├── train.py                #   BC training loop
+│   │   └── train_dynamics.py       #   Dynamics training loop
+│   │
+│   ├── game/                       # Game theory
+│   │   ├── payoff.py               #   Payoff matrix construction
+│   │   ├── nash.py                 #   Nash equilibrium LP solver
+│   │   └── exploitability.py       #   Exploitability measurement
+│   │
+│   ├── eval/                       # Evaluation
+│   │   ├── bootstrap.py            #   Bootstrap CIs (B=1000)
+│   │   ├── dynamics_metrics.py     #   Dynamics model evaluation
+│   │   └── metrics.py              #   General metrics
+│   │
+│   └── rl/                         # Reward
+│       └── reward.py               #   Reward function
+│
+├── scripts/                        # Analysis scripts
+│   ├── generate_figures.py         #   Paper figures (3 figures)
+│   ├── counterfactual_analysis.py  #   Value decomposition + counterfactual
+│   ├── smoothed_br.py              #   Best-response convergence
+│   ├── phase2_qre.py               #   SVD + rank analysis
+│   ├── reward_sensitivity.py       #   Reward ablation
+│   └── ...                         #   Additional analyses
+│
+├── configs/                        # Model configs (YAML)
+├── tests/                          # Test suite
+├── results/                        # Analysis outputs (JSON)
+├── figures/                        # Generated figures (PDF)
+├── paper/                          # LaTeX source + compiled PDF
+└── pyproject.toml
+```
+
+</details>
+
+---
+
+MIT
