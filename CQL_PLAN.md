@@ -15,18 +15,19 @@ Adding horizon-1 CQL gives a concrete RL comparison: BC (imitation) vs CQL (offl
 - [x] Step 6: Created `tests/test_cql.py` — 11 unit tests, all passing
 - [x] All 162 existing tests still pass (no regressions)
 
-### TODO (GPU machine)
-- [ ] Step 7: Train CQL model
+### DONE (GPU, RTX 4080 SUPER)
+- [x] Step 7: Train CQL model
   ```bash
-  python -m turnone.rl.train_cql --config configs/cql_base.yaml --out_dir runs/cql_001
+  source .venv/bin/activate && python -m turnone.rl.train_cql --config configs/cql_base.yaml --out_dir runs/cql_001
   ```
-  - Expected: ~50 epochs max, early stopping at patience=7
-  - Watch: td_loss should decrease, cql_penalty should stabilize
-  - If loss diverges: try alpha=0.5 or alpha=0.1 in config
+  - Best val loss: 8.3967 at epoch 3, early stopped at epoch 10
+  - TD loss stable ~4.2, CQL penalty ~4.2, Q_data ~0.37
+  - torch.compile() skipped (no C compiler on WSL), trained without it
+  - Checkpoint: `runs/cql_001/best.pt`
 
-- [ ] Step 8: Evaluate CQL vs BC vs Nash
+- [x] Step 8: Evaluate CQL vs BC vs Nash
   ```bash
-  python scripts/cql_eval.py \
+  PYTHONPATH=. python scripts/cql_eval.py \
       --cql_ckpt runs/cql_001/best.pt \
       --bc_ckpt runs/bc_001/best.pt \
       --dyn_ckpt runs/dyn_001/best.pt \
@@ -35,10 +36,20 @@ Adding horizon-1 CQL gives a concrete RL comparison: BC (imitation) vs CQL (offl
       --n_matchups 500 \
       --out_dir results/cql_eval/
   ```
-  - Output: `results/cql_eval/cql_eval.json` with per-matchup + aggregate results
-  - Prints comparison table: exploitability, TV distances, worst-case values
+  - Results saved to `results/cql_eval/cql_eval.json`
 
-### TODO (laptop, after GPU results)
+  | Metric | BC | CQL | Nash |
+  |--------|-----|-----|------|
+  | Exploitability | 1.3954 | 1.1537 | 0.0000 |
+  | TV(policy, Nash) | 0.9889 | 0.9775 | 0.0000 |
+  | TV(CQL, BC) | -- | 0.5992 | -- |
+  | Worst-case value | -1.2323 | -0.9906 | 0.1631 |
+
+  - CQL improves over BC (exploitability 1.40→1.15, worst-case -1.23→-0.99)
+  - Policies are meaningfully different (TV=0.60) but both far from Nash
+  - Interpretation: reward signal recovers some Nash structure that imitation misses
+
+### TODO (laptop)
 - [ ] Step 9: Update paper (`writeup/final.tex`)
   - Expand section 7 (Ablations) with CQL comparison subsection
   - Add table: BC vs CQL vs Nash (exploitability, TV distances, worst-case)
