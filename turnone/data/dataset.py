@@ -29,6 +29,7 @@ from turnone.data.action_space import (
     get_target_category,
 )
 from turnone.data.io_utils import read_jsonl
+from turnone.rl.reward import compute_reward
 
 
 # Field names for the 8-int per-mon encoding (same as TurnZero)
@@ -280,6 +281,14 @@ class Turn1Dataset(Dataset):
 
         field_after = _encode_field_state(res["field_state"])
 
+        # Reward (scalar, P1 perspective)
+        reward = compute_reward(
+            hp_delta.unsqueeze(0).numpy(),
+            ko_flags.unsqueeze(0).numpy(),
+            field_state.unsqueeze(0).numpy(),
+            field_after.unsqueeze(0).numpy(),
+        )[0]
+
         return {
             "team_a": team_a,             # (6, 8)
             "team_b": team_b,             # (6, 8)
@@ -303,6 +312,7 @@ class Turn1Dataset(Dataset):
             "hp_delta": hp_delta,          # (4,) HP lost
             "ko_flags": ko_flags,          # (4,) binary
             "field_after": field_after,    # (5,)
+            "reward": float(reward),       # scalar, P1 perspective
         }
 
 
