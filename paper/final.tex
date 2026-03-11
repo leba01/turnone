@@ -7,6 +7,7 @@
 \usepackage{amssymb}
 \usepackage{hyperref}
 \usepackage{amsthm}
+\usepackage{enumitem}
 
 \newcommand{\theHalgorithm}{\arabic{algorithm}}
 
@@ -46,7 +47,25 @@ Here is a puzzle. In competitive Pok\'emon VGC, expert strategies are maximally 
 
 We study this in the VGC doubles format, where both players simultaneously choose actions for two active Pok\'emon on turn~1. The action space is combinatorial (${\sim}200$--$400$ valid actions per side), the game is zero-sum and simultaneous, and 154,718 recorded expert battles provide a large behavioral dataset. Our goal is not to build a stronger agent but to explain \emph{why} conventional play succeeds---a structural question that agent-building alone cannot answer.
 
-Our findings: (1)~Expert play is individually exploitable (1.41 reward units) and bears no resemblance to Nash (\S\ref{sec:convention}). (2)~This does not matter: payoff matrices have effective rank~3 out of ${\sim}122$ actions, so 93\% of strategic variation is payoff-irrelevant (\S\ref{sec:free}). (3)~The exception is terastallization, an irreversible resource where convention costs 30\% of exploitability (\S\ref{sec:tera}). (4)~Switching from imitation to offline RL (CQL) does not escape this: CQL moves 60\% of the distribution but gains only 17\% in exploitability (\S\ref{sec:cql}).
+We formalize turn-1 play as an offline contextual bandit---context is the
+game state, action is one of ${\sim}200$ valid turn-1 combinations, reward
+comes from a learned dynamics model---and ask three questions:
+
+\begin{itemize}[nosep,leftmargin=*]
+  \item \textbf{Convention $\neq$ strategy.} How far is expert play from
+    optimal? Very far: BC is exploitable by 1.41 reward units and
+    TV $= 0.99$ from Nash---yet cross-play outcomes match Nash payoffs
+    within 0.02 (\S\ref{sec:convention}).
+  \item \textbf{Convention is free.} Why doesn't this matter? Payoff
+    matrices have effective rank~3 out of ${\sim}122$ actions, so 93\%
+    of strategic variation is payoff-irrelevant (\S\ref{sec:free}). The
+    exception is terastallization, an irreversible resource that accounts
+    for 30\% of exploitability (\S\ref{sec:tera}).
+  \item \textbf{Can reward optimization escape?} Switching from imitation
+    to offline RL (CQL) reshapes 60\% of the distribution but gains only
+    17\% in exploitability---94\% of the shift lands in the payoff null
+    space (\S\ref{sec:cql}).
+\end{itemize}
 
 \subsection{Related Work}
 
@@ -68,7 +87,15 @@ VGC-Bench \citep{angliss2025vgcbench} evaluates LLM agents; Metamon \citep{grigs
 %% ============================================================
 \section{Approach}
 \label{sec:approach}
-%% ============================================================
+We instantiate the contextual bandit as follows. Each turn-1 decision is a
+context $s$ (team composition, leads, field), an action $a$ from
+${\sim}200$ valid combinations, and a reward $r(s,a,a')$ from a learned
+dynamics model. The horizon-1 structure means $Q(s,a) =
+\mathbb{E}[r \mid s, a]$ with no bootstrapping---CQL reduces to
+conservative reward regression. We compare three approaches: behavioral
+cloning (BC), which imitates expert play and ignores reward; CQL, which
+optimizes reward while staying near the data distribution; and Nash
+equilibria, computed via LP on the same reward model's payoff matrix.
 
 \subsection{Data}
 
@@ -80,13 +107,13 @@ Our BC model uses a Transformer encoder (4~layers, 4~heads, $d_\text{model} = 12
 
 \subsection{Dynamics Model}
 
-The dynamics model shares the encoder architecture, adds action embeddings fused with the encoder output, and predicts per-Pok\'emon HP changes, KO probabilities, and post-turn field state. It achieves HP MAE of 13.3/100 and KO AUC of 0.91.
+The dynamics model shares the encoder architecture, adds action embeddings fused with the encoder output, and predicts per-Pok\'emon HP changes, KO probabilities, and post-turn field state. This defines the bandit's reward function $r(s,a,a')$. It achieves HP MAE of 13.3/100 and KO AUC of 0.91.
 
 \textbf{Signal-to-noise validation.} Since all game-theoretic quantities depend on learned dynamics, we validate that signal exceeds model noise. Injecting Gaussian noise at the dynamics model's reward-space error scale (MAE $= 1.19$) yields a noise-floor exploitability of 0.41---a signal-to-noise ratio of 3.4:1 against our measured exploitability of 1.41.
 
 \subsection{Game-Theoretic Framework}
 
-For each matchup, we enumerate valid joint actions per side, evaluate each pair with the dynamics model, and construct a payoff matrix $R \in \mathbb{R}^{m \times n}$ ($m, n \sim 200$). Payoffs combine HP advantage, KO advantage (weight 3.0), and field advantage (weight 0.5), yielding a zero-sum game \citep{poke-env, openai2019dota, ishii2018fighting}. The weights are heuristic but our findings are invariant to the choice (Section~\ref{sec:ablations}). Nash equilibria are computed via LP: mixed strategies $p^*, q^*$ and game value $V^* = {p^*}^\top R\, q^*$.
+For each matchup, we enumerate valid joint actions per side, evaluate each pair with the dynamics model, and construct a payoff matrix $R \in \mathbb{R}^{m \times n}$ ($m, n \sim 200$)---the payoff matrix of the contextual bandit. Payoffs combine HP advantage, KO advantage (weight 3.0), and field advantage (weight 0.5), yielding a zero-sum game \citep{poke-env, openai2019dota, ishii2018fighting}. The weights are heuristic but our findings are invariant to the choice (Section~\ref{sec:ablations}). Nash equilibria are computed via LP: mixed strategies $p^*, q^*$ and game value $V^* = {p^*}^\top R\, q^*$.
 
 \textbf{Exploitability} measures how much a player loses by deviating from Nash. For player~1 with strategy~$p$, exploitability is $V^* - \min_j (p^\top R)_j$: the gap between the Nash value and the worst-case payoff against a best-responding opponent. We report the average over both roles.
 
@@ -239,6 +266,8 @@ There is one dimension where convention is costly. Terastallization is an irreve
 \label{fig:tera}
 \end{figure}
 
+\textbf{Case study.} A Calyrex-Ice / Ogerpon-Hearthflame lead facing Kyurem-White / Maushold makes the pattern concrete. BC plays Trick Room + Follow Me with 49\% probability---a purely defensive setup targeting self---for a payoff of $-0.75$. Nash concentrates 87\% on High Horsepower + Horn Leech, both targeting the opponent's Maushold slot, with tera, for a payoff of $+2.75$. The best response copies this aggressive targeting (payoff $+2.76$ against BC), yielding a swing of 3.51---the largest in our sample. Convention learned a defensive posture (Trick Room to reverse speed, Follow Me to redirect attacks) when the game demands immediate aggression. Both tera and target selection contribute: BC never terastallizes in its top action, while Nash always does; and BC targets self in every top action, while Nash targets the opponent exclusively.
+
 \textbf{Domain interpretation.} Experts rationally conserve tera for later turns when they might have more information; our turn-1-only game theory says use it now. This gap between myopic and far-sighted optimality explains the 30\% contribution and suggests it would shrink in a multi-turn analysis. A regression of exploitability on structural features yields $R^2 = 0.08$: the \emph{direction} of exploitation is systematic (tera + aggression), but the \emph{magnitude} is matchup-specific.
 
 %% ============================================================
@@ -268,7 +297,9 @@ Worst-case value & $-1.23$ & $-0.99$ & $+0.16$ \\
 
 CQL reliably reduces exploitability (411 of 500 matchups, $p < 10^{-51}$), narrowing the gap by 17\% overall (1.40 $\to$ 1.15) and improving worst-case value by 20\%. But it does not close the gap: both policies remain TV $= 0.98$ from Nash. The improvement is not uniform---CQL helps most where convention is least free, reducing exploitability by 26\% in the most-exploitable quartile but near 0\% in the least. This gradient is exactly what the low-rank theory predicts: matchups with higher exploitability have more payoff-relevant variation for the reward signal to exploit.
 
-The key insight: the two policies are meaningfully different (TV(CQL, BC) $= 0.60$), but CQL moves 60\% of the distribution yet gains only 17\% in exploitability because most movement is payoff-irrelevant. Convention persists not because imitation is the wrong objective, but because the game's low-rank structure leaves little room for \emph{any} objective to find improvement.
+Projecting the CQL--BC difference onto the SVD basis confirms this directly: 94\% of the distributional shift lies in the payoff null space, with only 6\% in the top-3 payoff-relevant dimensions. Behaviorally, CQL's largest shift is in terastallization: it doubles the tera rate from 28\% to 54\% (Nash: 95\%) and increases offensive targeting from 50\% to 65\% (Nash: 69\%). This is consistent with \S\ref{sec:tera}---tera is the one dimension where convention is costly, so reward optimization correctly shifts probability mass there. But even this shift captures only half the Nash tera rate, reflecting CQL's conservative penalty anchoring it to the data distribution.
+
+The key insight: the two policies are meaningfully different (TV(CQL, BC) $= 0.60$), but 94\% of that movement is payoff-irrelevant. Convention persists not because imitation is the wrong objective, but because the game's low-rank structure leaves little room for \emph{any} objective to find improvement.
 
 %% ============================================================
 \section{Ablations and Additional Measurements}
@@ -303,7 +334,9 @@ $w_\text{ko}$ & Exploitability & BC-vs-BC $- V^*$ & Convention free? \\
 
 \textbf{Payoff-weighted TV.} Reweighting TV distance by each action's contribution to payoff variance collapses the distance from 0.99 to 0.019---a 50$\times$ reduction confirming that BC--Nash divergence is concentrated in payoff-irrelevant dimensions.
 
-\textbf{Smoothed best-response dynamics.} Smoothed BR initialized at BC converges from exploitability 2.81 to below 0.50 in 19 iterations, reaching 0.14 by iteration~500 (Figure~\ref{fig:br}). Direct interpolation confirms flat geometry: exploitability decays linearly with no phase transition, consistent with 93\% null-space energy.
+\textbf{Smoothed best-response dynamics.} Smoothed BR initialized at BC converges from exploitability 2.81 to below 0.50 in 19 iterations, reaching 0.14 by iteration~500 (Figure~\ref{fig:br}).
+
+\textbf{Mixture interpolation.} Blending BC toward Nash via $p_\alpha = (1{-}\alpha)\,p_\text{BC} + \alpha\,p^*$ yields a nearly perfect linear decay in exploitability: $\text{exploit}(\alpha) \approx 1.41 - 1.41\alpha$ ($R^2 = 0.9995$). There is no phase transition---no threshold $\alpha$ at which exploitability suddenly drops---consistent with 93\% of the BC--Nash gap lying in the payoff null space. The geometry is flat: every step toward Nash buys exactly the same marginal improvement.
 
 \begin{figure}[t]
 \centering
