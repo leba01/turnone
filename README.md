@@ -4,62 +4,56 @@
 
 Lucas Brennan-Almaraz · Stanford CS234 · Winter 2025--26
 
-[[Paper (PDF)]](paper/final.pdf) · ![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
+[[Paper (PDF)]](paper/final.pdf) · [[Poster (PDF)]](poster.pdf) · ![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
 
 ---
 
-In competitive Pokémon VGC (doubles), both players pick moves simultaneously on turn 1. This is a game theory problem: there's a mathematically optimal mixed strategy (Nash equilibrium), and we can measure how far real experts are from it. There's a classic sports economics result that penalty kick shooters in soccer play Nash equilibrium (Chiappori 2002, Palacios-Huerta 2003) --- but that's a 2x2 game (left/right). We study the same phenomenon in a game with hundreds of actions per side, and we can decompose *why* it happens: error cancellation, not individual optimality.
+Expert Pokémon VGC strategies look nothing like Nash equilibria (total variation 0.99), yet expert-vs-expert outcomes match Nash payoffs within 0.02. Random strategies achieve the same result. SVD of the ~200-action payoff matrices reveals effective rank 3, with 93% of strategic variation in the payoff null space. Switching from imitation to offline RL (Conservative Q-Learning) reshapes 60% of the distribution but gains only 17% in exploitability. The question is not whether experts are rational, but whether the game notices.
+
+**See also:** [TurnZero](https://github.com/leba01/turnzero) studies the pre-battle decision (which Pokémon to lead) across best-of-three sets. Same dataset, same format, earlier decision point --- and the same conclusion: convention, not optimization.
 
 ### Key Findings
 
-1. **Experts are exploitable.** If you knew exactly how the average top player picks moves, you could punish them for ~1.4 reward units per turn. They're predictable --- they always go for the popular aggressive play.
+1. **Convention ≠ strategy.** Experts are exploitable by 1.41 reward units per turn. They spread probability across ~95 actions; Nash concentrates on ~3. Total variation distance: 0.99.
 
-2. **But expert-vs-expert is statistically indistinguishable from Nash.** When two experts play each other, the payoff gap from Nash is 0.019 with a 95% CI of [−0.07, 0.04] --- spanning zero. So are experts secretly geniuses?
+2. **Convention is free.** Expert-vs-expert payoffs match Nash within 0.02 [−0.07, 0.04]. But this isn't expert skill --- uniform random and shuffled-label strategies achieve the same zero gap. It's structural.
 
-3. **No --- it's a coincidence of symmetric errors.** We decomposed the expert-vs-expert value and found that Player 1 loses against a Nash opponent by ~1.0, and Player 2 gives away ~1.0 to a Nash opponent. These errors cancel perfectly. Every single matchup (500/500) shows this pattern. Experts aren't individually near-optimal --- they're symmetrically suboptimal.
+3. **The game is 3-dimensional.** SVD of ~120×120 payoff matrices reveals effective rank 2.9. The top 3 singular values capture 96% of spectral energy. 93% of BC--Nash deviation energy lies in the payoff null space. There aren't enough payoff-relevant directions for experts to go wrong in different ways.
 
-4. **Nash plays completely differently.** The optimal strategy uses ~3 actions with heavy Protect and defensive plays. Experts spread weight across ~95 actions and favor aggression. Total variation distance: 0.99 out of 1.0 (basically zero overlap).
+4. **Reward optimization can't escape.** CQL (offline RL) changes 60% of the distribution vs. BC, but 94% of that shift lands in the null space. Exploitability drops only 17% (1.40 → 1.15). CQL finds a *different convention*, not a better strategy.
 
-5. **You can learn Nash from expert play.** Starting from expert strategies and iteratively best-responding, you converge toward Nash in ~500 steps --- a 96% reduction in exploitability.
-
-6. **Most of those actions are redundant.** SVD analysis of the payoff matrices reveals an effective rank of 2.9 out of ~122 actions. The game is 3-dimensional wearing a 122-dimensional disguise --- convention is free because most strategic variation is payoff-irrelevant. This is the structural reason why symmetric errors cancel: there just aren't enough payoff-relevant directions for experts to go wrong in different ways.
+5. **The exception: terastallization.** Tera is an irreversible resource. Our turn-1 model says use it 99% of the time; experts conserve it (25%). This accounts for 30% of exploitability. But in full battles (n = 45,172), early tera yields only a 1.7pp win-rate edge --- the immediate payoff is largely offset by the option value of waiting.
 
 ### Results
 
 500 matchups, 95% bootstrap CIs (B = 1000).
 
-| Metric | Value | 95% CI |
+| Metric | BC | CQL | Nash |
+|:---|:---:|:---:|:---:|
+| Exploitability | 1.40 [1.36, 1.46] | 1.15 [1.08, 1.23] | 0.00 |
+| TV(·, Nash) | 0.99 | 0.98 | 0.00 |
+| Worst-case value | −1.23 | −0.99 | +0.16 |
+
+| Structural metric | Value | 95% CI |
 |:---|:---:|:---:|
-| BC exploitability | 1.41 | [1.36, 1.46] |
-| TV distance (BC vs Nash) | 0.99 | [0.98, 0.99] |
-| Expert-vs-expert payoff gap | 0.019 | [−0.07, 0.04] |
 | Effective rank (95% energy) | 2.9 | [2.8, 2.9] |
-| Tera fraction of exploitability | 30% | --- |
+| BC--Nash deviation in null space | 93% | [92.5%, 93.2%] |
+| Cross-play gap (BC-vs-BC − V*) | −0.02 | [−0.07, 0.04] |
+| Tera fraction of exploitability | 30% | [29%, 32%] |
 
 ### Method
 
-This is **empirical game-theoretic analysis (EGTA)** --- but instead of a game simulator, we use a learned dynamics model. That's new.
+We formalize turn-1 play as an offline contextual bandit: context is the game state (~200 valid action combinations per side), reward comes from a learned dynamics model.
 
-- **Behavioral cloning**: trained a neural net on 155K expert battles to learn "what do experts do?"
-- **Dynamics model**: trained a world model to predict battle outcomes (HP MAE 13.3/100; signal-to-noise validated at 3.4:1 vs. noise-floor exploitability)
-- **Payoff matrices**: enumerated all ~200--400 valid action combos per side (~120x120 matrices, 500 matchups), scored each pair via the dynamics model
-- **Nash LP**: solved for the exact equilibrium via linear programming
-- **Exploitability**: measured the gap between BC play and best response
-- **SVD decomposition**: revealed the low-rank structure that explains why convention is free
+- **Behavioral cloning**: Transformer encoder (4 layers, 128d) on 155K expert battles. 44.8% top-1 accuracy (3× uniform), factored action heads
+- **Dynamics model**: same encoder, predicts HP changes + KOs + field state. HP MAE 13.3/100, KO AUC 0.91, signal-to-noise ratio 3.4:1
+- **Payoff matrices**: enumerate all valid joint actions per matchup (~120×120), score via dynamics model, solve Nash LP
+- **CQL**: Conservative Q-Learning on the same dataset. Factored Q-function, horizon-1 (no bootstrapping). Tests whether reward optimization can escape convention
+- **Battle outcomes**: 124K full battles validate the tera finding against actual win rates
 
-### Where this breaks
+### Limitations
 
-Everything flows through the learned dynamics model --- if it systematically compresses payoff structure, the low-rank finding could be partially artifactual. The capacity ablation (Table 5 in the paper) shows effective rank rising from 2.9 to 4.3 with a larger model, which cuts both ways. The framework is also turn-1 only: the tera finding (30% of exploitability from a cross-temporal mechanic) is basically the framework calling out its own limitation. And all results are Regulation G; generality to other formats is a conjecture, not a finding.
-
-### Paper Figures
-
-All figures generated by `scripts/generate_figures.py`.
-
-| Figure | What it shows |
-|:---|:---|
-| `fig1_sv_decay` | Singular value decay across 500 matchups --- effective rank ~3 |
-| `fig2_tera_aggression` | Tera and aggression decomposition of exploitability |
-| `fig3_smoothed_br` | Smoothed best-response convergence toward Nash |
+Everything flows through the learned dynamics model --- if it systematically compresses payoff structure, low rank could be partially artifactual. The capacity ablation (effective rank 2.9 → 4.3 with a larger model that overfits) cuts both ways. The framework is turn-1 only: tera's 30% contribution is the framework identifying its own blind spot. Turn-1 reward predicts only 4% of win variance (r = 0.21). All results are Regulation G; generality to other formats is a testable prediction, not a finding.
 
 ### Citation
 
@@ -114,13 +108,18 @@ python -m turnone.game.payoff
 # 5. Solve Nash equilibria via LP
 python -m turnone.game.nash
 
-# 6. Run analyses
+# 6. Train CQL (offline RL comparison)
+python -m turnone.rl.train_cql \
+    --config configs/cql_base.yaml
+
+# 7. Run analyses
 python scripts/counterfactual_analysis.py   # value decomposition + counterfactual
 python scripts/smoothed_br.py               # best-response convergence
 python scripts/phase2_qre.py                # SVD + rank analysis
 python scripts/reward_sensitivity.py        # reward ablation
+python scripts/cql_eval.py                  # CQL vs BC vs Nash
 
-# 7. Generate figures
+# 8. Generate figures
 python scripts/generate_figures.py
 ```
 
@@ -161,8 +160,9 @@ turnone/
 │   │   ├── dynamics_metrics.py     #   Dynamics model evaluation
 │   │   └── metrics.py              #   General metrics
 │   │
-│   └── rl/                         # Reward
-│       └── reward.py               #   Reward function
+│   └── rl/                         # Offline RL
+│       ├── reward.py               #   Reward function
+│       └── train_cql.py            #   CQL training loop
 │
 ├── scripts/                        # Analysis scripts
 │   ├── generate_figures.py         #   Paper figures (3 figures)

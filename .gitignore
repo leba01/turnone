@@ -6,10 +6,16 @@
 __pycache__/
 *.pyc
 .venv
+uv.lock
 
 # IDE / tools
 .claude/
 *.egg-info/
+.DS_Store
+
+# Large cached files
+*.pkl
+results/battle_outcomes/*.jsonl
 
 # Internal docs (stay on disk, not in public repo)
 CLAUDE.md
@@ -20,6 +26,15 @@ docs/cost_of_convention_plan.md
 # Milestone (submitted separately, not part of repo)
 paper/milestone.tex
 paper/milestone.pdf
+
+# Stale build artifacts
+writeup/
+
+# Companion/script notes (not core)
+poster_companion.*
+poster_script.*
+scripts/md_to_html.py
+scripts/script_to_html.py
 
 # LaTeX build artifacts
 *.aux
