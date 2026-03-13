@@ -17,26 +17,20 @@ uv.lock
 *.pkl
 results/battle_outcomes/*.jsonl
 
-# Internal docs (stay on disk, not in public repo)
+# Internal docs and plans (stay on disk, not in public repo)
 CLAUDE.md
-docs/HISTORY.md
-docs/DECISIONS.md
-docs/cost_of_convention_plan.md
+docs/
+plans/
+CQL_PLAN.md
 
 # Milestone (submitted separately, not part of repo)
 paper/milestone.tex
 paper/milestone.pdf
 
-# Stale build artifacts
+# LaTeX style/compilation artifacts
+paper/*.sty
+paper/*.bst
 writeup/
-
-# Companion/script notes (not core)
-poster_companion.*
-poster_script.*
-scripts/md_to_html.py
-scripts/script_to_html.py
-
-# LaTeX build artifacts
 *.aux
 *.bbl
 *.blg
@@ -44,3 +38,9 @@ scripts/script_to_html.py
 *.out
 *.synctex.gz
 texput.log
+
+# Companion/script notes (not core)
+poster_companion.*
+poster_script.*
+scripts/md_to_html.py
+scripts/script_to_html.py
