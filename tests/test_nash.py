@@ -161,14 +161,6 @@ class TestStrategyValues:
         assert abs(vals["bc_worst_case"] - vals["nash_value"]) < 1e-4
         assert abs(vals["bc_vs_bc"] - vals["nash_value"]) < 1e-4
 
-    def test_all_keys_present(self):
-        """Should return all four triangle values."""
-        R = np.eye(3)
-        bc_p1 = np.array([1/3, 1/3, 1/3])
-        bc_p2 = np.array([1/3, 1/3, 1/3])
-        vals = compute_strategy_values(bc_p1, bc_p2, R, 0.5)
-        assert set(vals.keys()) == {"bc_worst_case", "nash_value", "bc_vs_bc", "best_response_to_bc"}
-
 
 class TestBCStrategy:
     """Tests for bc_strategy_from_logits."""

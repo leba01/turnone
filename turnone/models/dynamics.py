@@ -301,4 +301,4 @@ def remap_actions(actions: Tensor) -> Tensor:
     Returns:
         (B,) LongTensor with values in {0, ..., 16}.
     """
-    return actions.clamp(min=0).where(actions >= 0, torch.tensor(NO_ACTION_IDX, device=actions.device))
+    return torch.where(actions >= 0, actions, torch.tensor(NO_ACTION_IDX, device=actions.device))

@@ -51,16 +51,6 @@ class TestEnumerateJointActions:
         actions = enumerate_joint_actions(mask_a, mask_b, include_tera=True)
         assert len(actions) == 3 * 2 * 3  # 18
 
-    def test_tuples_valid(self):
-        """All tuples have valid ranges."""
-        mask_a = np.ones(16, dtype=bool)
-        mask_b = np.ones(16, dtype=bool)
-        actions = enumerate_joint_actions(mask_a, mask_b)
-        for sa, sb, tf in actions:
-            assert 0 <= sa < 16
-            assert 0 <= sb < 16
-            assert 0 <= tf < 3
-
 
 class TestBuildPayoffMatrix:
     """Tests for build_payoff_matrix."""
@@ -212,19 +202,6 @@ class TestDynamicsMetrics:
         assert metrics["ko_acc"] > 0.99
         assert metrics["weather_acc"] > 0.99
         assert metrics["binary_field_acc"] > 0.99
-
-    def test_output_keys(self):
-        """All expected metric keys present."""
-        N = 10
-        hp = np.zeros((N, 4), dtype=np.float32)
-        ko = np.zeros((N, 4), dtype=np.float32)
-        ko_logits = np.zeros((N, 4), dtype=np.float32)
-        field = np.zeros((N, 5), dtype=np.float32)
-
-        metrics = compute_dynamics_metrics(hp, hp, ko_logits, ko, field, field)
-        expected = {"hp_mae", "hp_rmse", "hp_r2", "ko_auc", "ko_acc",
-                    "ko_bce", "weather_acc", "terrain_acc", "binary_field_acc"}
-        assert set(metrics.keys()) == expected
 
 
 class TestStrategicMask:

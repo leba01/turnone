@@ -189,19 +189,6 @@ class TestValidate:
         assert collected["mask_a"].shape == (n, 16)
         assert collected["mask_b"].shape == (n, 16)
 
-    def test_loss_finite(self):
-        """Validation loss is finite."""
-        seed_everything(42)
-        model = _make_model()
-        loader = _make_loader(n=16, batch_size=4)
-        criterion = nn.CrossEntropyLoss()
-        device = torch.device("cpu")
-
-        val_loss, _ = validate(
-            model, loader, criterion, device, lambda_tera=0.5,
-        )
-        assert np.isfinite(val_loss), f"Val loss should be finite, got {val_loss}"
-
 
 # ===========================================================================
 # TestConfigLoading

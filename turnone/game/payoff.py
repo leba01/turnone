@@ -13,6 +13,7 @@ from torch import Tensor
 
 from turnone.data.action_space import NUM_TERA, SLOTS_PER_MON
 from turnone.models.dynamics import DynamicsModel, remap_actions
+from turnone.rl.reward import DEFAULT_W_HP, DEFAULT_W_KO, DEFAULT_W_FIELD
 
 
 def enumerate_joint_actions(
@@ -110,7 +111,7 @@ def build_payoff_matrix(
         (|A1|, |A2|) payoff matrix (P1's reward).
     """
     if reward_weights is None:
-        reward_weights = {"w_hp": 1.0, "w_ko": 3.0, "w_field": 0.5}
+        reward_weights = {"w_hp": DEFAULT_W_HP, "w_ko": DEFAULT_W_KO, "w_field": DEFAULT_W_FIELD}
 
     n1 = len(actions_p1)
     n2 = len(actions_p2)

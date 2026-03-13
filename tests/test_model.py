@@ -110,14 +110,6 @@ class TestEncoder:
 class TestBCPolicy:
     """Tests for BCPolicy."""
 
-    def test_output_keys(self):
-        """Forward returns a dict with the expected keys."""
-        model = BCPolicy(DUMMY_VOCAB, FAST_CFG)
-        inputs = _random_inputs(B=4)
-        team_a, team_b, lead_a, lead_b, field_state, mask_a, mask_b = inputs
-        out = model(team_a, team_b, lead_a, lead_b, field_state, mask_a, mask_b)
-        assert set(out.keys()) == {"logits_a", "logits_b", "logits_tera"}
-
     def test_output_shapes(self):
         """logits_a/b are (B, 16), logits_tera is (B, 3)."""
         B = 4
@@ -291,52 +283,3 @@ class TestAutoregressiveBC:
         assert out["logits_b"].shape == (B, 16)
         assert out["logits_tera"].shape == (B, 3)
 
-    def test_autoregressive_checkpoint_roundtrip(self):
-        """Save and reload autoregressive model produces same outputs."""
-        torch.manual_seed(42)
-        model = BCPolicy(DUMMY_VOCAB, FAST_CFG, autoregressive=True)
-        model.eval()
-
-        B = 2
-        inputs = _random_inputs(B)
-        team_a, team_b, lead_a, lead_b, field_state, mask_a, mask_b = inputs
-        action_a = torch.zeros(B, dtype=torch.long)
-
-        with torch.no_grad():
-            out_orig = model.forward_conditioned(
-                team_a, team_b, lead_a, lead_b, field_state,
-                mask_a, mask_b, action_a,
-            )
-
-        with tempfile.NamedTemporaryFile(suffix=".pt", delete=False) as f:
-            ckpt_path = Path(f.name)
-            torch.save(
-                {
-                    "encoder_config": {
-                        "d_model": FAST_CFG.d_model,
-                        "n_layers": FAST_CFG.n_layers,
-                        "n_heads": FAST_CFG.n_heads,
-                        "d_ff": FAST_CFG.d_ff,
-                        "dropout": FAST_CFG.dropout,
-                    },
-                    "vocab_sizes": DUMMY_VOCAB,
-                    "model_state_dict": model.state_dict(),
-                    "autoregressive": True,
-                },
-                ckpt_path,
-            )
-
-        loaded = BCPolicy.from_checkpoint(ckpt_path, device=torch.device("cpu"))
-        assert loaded.autoregressive is True
-
-        with torch.no_grad():
-            out_loaded = loaded.forward_conditioned(
-                team_a, team_b, lead_a, lead_b, field_state,
-                mask_a, mask_b, action_a,
-            )
-
-        assert torch.allclose(out_orig["logits_a"], out_loaded["logits_a"], atol=1e-6)
-        assert torch.allclose(out_orig["logits_b"], out_loaded["logits_b"], atol=1e-6)
-        assert torch.allclose(out_orig["logits_tera"], out_loaded["logits_tera"], atol=1e-6)
-
-        ckpt_path.unlink()

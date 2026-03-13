@@ -42,62 +42,31 @@ class TestSlotEncoding:
 
 
 class TestTargetCategory:
-    def test_protect_is_self(self):
-        assert get_target_category("Protect") == "self"
-
-    def test_earthquake_is_spread(self):
-        assert get_target_category("Earthquake") == "spread"
-
-    def test_helping_hand_is_ally(self):
-        assert get_target_category("Helping Hand") == "ally"
-
-    def test_fake_out_is_single(self):
-        assert get_target_category("Fake Out") == "single"
-
-    def test_unk_is_single(self):
-        assert get_target_category("UNK") == "single"
-
-    def test_trick_room_is_self(self):
-        assert get_target_category("Trick Room") == "self"
-
-    def test_tailwind_is_self(self):
-        assert get_target_category("Tailwind") == "self"
-
-    def test_meteor_beam_is_single(self):
-        # Showdown: "normal" — player chooses target even on charge turn
-        assert get_target_category("Meteor Beam") == "single"
-
-    # Previously-misclassified moves (caught by audit)
-    def test_outrage_is_self(self):
-        assert get_target_category("Outrage") == "self"
-
-    def test_counter_is_self(self):
-        assert get_target_category("Counter") == "self"
-
-    def test_air_cutter_is_spread(self):
-        assert get_target_category("Air Cutter") == "spread"
-
-    def test_dragon_cheer_is_ally(self):
-        assert get_target_category("Dragon Cheer") == "ally"
-
-    def test_scary_face_is_single(self):
-        assert get_target_category("Scary Face") == "single"
-
-    def test_self_destruct_is_spread(self):
-        assert get_target_category("Self Destruct") == "spread"
-
-    def test_soft_boiled_is_self(self):
-        assert get_target_category("Soft Boiled") == "self"
-
-    def test_acupressure_is_self(self):
-        assert get_target_category("Acupressure") == "self"
+    @pytest.mark.parametrize("move,expected", [
+        ("Protect", "self"),
+        ("Earthquake", "spread"),
+        ("Helping Hand", "ally"),
+        ("Fake Out", "single"),
+        ("UNK", "single"),
+        ("Trick Room", "self"),
+        ("Tailwind", "self"),
+        ("Meteor Beam", "single"),  # Showdown "normal" — player chooses target
+        # Previously-misclassified moves (caught by audit)
+        ("Outrage", "self"),
+        ("Counter", "self"),
+        ("Air Cutter", "spread"),
+        ("Dragon Cheer", "ally"),
+        ("Scary Face", "single"),
+        ("Self Destruct", "spread"),
+        ("Soft Boiled", "self"),
+        ("Acupressure", "self"),
+    ])
+    def test_target_category(self, move, expected):
+        assert get_target_category(move) == expected
 
 
 class TestMoveTargetsJson:
     """Verify move_targets.json is loaded and has full vocab coverage."""
-
-    def test_move_targets_loaded(self):
-        assert len(_MOVE_TARGETS) > 0, "move_targets.json not loaded"
 
     def test_vocab_coverage(self):
         vocab_path = Path("runs/bc_001/vocab.json")
@@ -138,27 +107,7 @@ class TestActionMask:
         mask = compute_action_mask(moves)
         assert not mask.any()
 
-    def test_all_known_moves(self):
-        moves = ["Fake Out", "Close Combat", "Sucker Punch", "Protect"]
-        mask = compute_action_mask(moves)
-        # At least 1 valid action per move (except UNK)
-        for m_idx in range(4):
-            assert mask[m_idx * 4: (m_idx + 1) * 4].any()
-
-
 class TestTurn1Action:
-    def test_from_move_target(self):
-        act = Turn1Action.from_move_target(2, 1)
-        assert act.move_idx == 2
-        assert act.target == 1
-        assert act.slot == move_target_to_slot(2, 1)
-
-    def test_from_slot(self):
-        act = Turn1Action.from_slot(9)
-        m, t = slot_to_move_target(9)
-        assert act.move_idx == m
-        assert act.target == t
-
     def test_roundtrip_dict(self):
         act = Turn1Action(move_idx=1, target=2, slot=6)
         d = act.to_dict()

@@ -13,15 +13,20 @@ from __future__ import annotations
 
 import numpy as np
 
+# Default reward weights — shared with turnone.game.payoff
+DEFAULT_W_HP = 1.0
+DEFAULT_W_KO = 3.0
+DEFAULT_W_FIELD = 0.5
+
 
 def compute_reward(
     hp_delta: np.ndarray,
     ko_flags: np.ndarray,
     field_before: np.ndarray,
     field_after: np.ndarray,
-    w_hp: float = 1.0,
-    w_ko: float = 3.0,
-    w_field: float = 0.5,
+    w_hp: float = DEFAULT_W_HP,
+    w_ko: float = DEFAULT_W_KO,
+    w_field: float = DEFAULT_W_FIELD,
 ) -> np.ndarray:
     """Compute zero-sum reward from P1's perspective using ground-truth outcomes.
 

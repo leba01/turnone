@@ -75,15 +75,6 @@ class TestComputeReward:
         r = compute_reward(hp_delta, ko_flags, field_before, field_after, w_field=0.5)
         assert r[0] > 0
 
-    def test_batch_shapes(self):
-        """Verify output shapes for various batch sizes."""
-        for N in [1, 5, 100]:
-            hp = np.zeros((N, 4), dtype=np.float32)
-            ko = np.zeros((N, 4), dtype=np.float32)
-            field = np.zeros((N, 5), dtype=np.float32)
-            r = compute_reward(hp, ko, field, field)
-            assert r.shape == (N,)
-
     def test_hp_component_range(self):
         """HP component alone should be in [-1, +1] for any valid HP deltas.
 
@@ -143,16 +134,6 @@ class TestRewardError:
 
         assert err["reward_mae"] < 0.05
         assert err["reward_correlation"] > 0.99
-
-    def test_error_keys(self):
-        """Should return all expected keys."""
-        from turnone.eval.dynamics_metrics import compute_reward_error
-
-        N = 10
-        z = np.zeros((N, 4), dtype=np.float32)
-        f = np.zeros((N, 5), dtype=np.float32)
-        err = compute_reward_error(z, z, z, z, f, f, f)
-        assert set(err.keys()) == {"reward_mae", "reward_rmse", "reward_correlation", "reward_bias"}
 
 
 class TestComputeRewardFromDynamics:

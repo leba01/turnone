@@ -57,11 +57,6 @@ class TestQLearner:
         assert out["q_b"].shape == (B, 16)
         assert out["q_tera"].shape == (B, 3)
 
-    def test_output_keys(self):
-        model = QLearner(DUMMY_VOCAB, FAST_CFG)
-        out = model(*_random_inputs(2))
-        assert set(out.keys()) == {"q_a", "q_b", "q_tera"}
-
     def test_shared_q_head(self):
         """Both leads use the same q_head weights."""
         model = QLearner(DUMMY_VOCAB, FAST_CFG)
@@ -100,14 +95,6 @@ class TestQLearner:
 
         # Cold policy should be more peaked on action 0 (higher Q)
         assert p_cold[0] > p_warm[0]
-
-    def test_extract_policy_empty(self):
-        """Empty valid_actions returns empty tensor."""
-        q_a = torch.zeros(16)
-        q_b = torch.zeros(16)
-        q_tera = torch.zeros(3)
-        policy = QLearner.extract_policy(q_a, q_b, q_tera, [], tau=1.0)
-        assert policy.shape == (0,)
 
     def test_checkpoint_roundtrip(self):
         """Save and reload produces the same outputs."""

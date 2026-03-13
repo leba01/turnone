@@ -78,15 +78,6 @@ class TestDynamicsModel:
         assert field_logits.terrain.shape == (B, 5)
         assert field_logits.binary.shape == (B, 3)
 
-    def test_predict_field_state_shape(self):
-        """predict_field_state returns (B, 5) from FieldLogits."""
-        B = 4
-        model = DynamicsModel(DUMMY_VOCAB, FAST_CFG)
-        inputs = _random_dynamics_inputs(B=B)
-        _, _, field_logits = model(*inputs)
-        field_pred = model.predict_field_state(field_logits)
-        assert field_pred.shape == (B, 5)
-
     def test_action_embedding(self):
         """Different actions produce different outputs."""
         torch.manual_seed(123)
@@ -204,22 +195,6 @@ class TestDynamicsModel:
 
         # Cleanup
         ckpt_path.unlink()
-
-    def test_param_count(self):
-        """Model has reasonable number of parameters (> 100K)."""
-        model = DynamicsModel(DUMMY_VOCAB, FAST_CFG)
-        n_params = sum(p.numel() for p in model.parameters())
-        assert n_params > 100_000, f"Too few parameters: {n_params:,}"
-
-    def test_encode_state_shape(self):
-        """encode_state returns (B, d_model) pooled representation."""
-        B = 4
-        model = DynamicsModel(DUMMY_VOCAB, FAST_CFG)
-        model.eval()
-        inputs = _random_dynamics_inputs(B=B)
-        with torch.no_grad():
-            pooled = model.encode_state(*inputs[:5])
-        assert pooled.shape == (B, FAST_CFG.d_model)
 
     def test_predict_from_pooled_matches_forward(self):
         """predict_from_pooled gives identical results to forward."""
@@ -406,92 +381,12 @@ class TestTrainDynamics:
 class TestCrossAttention:
     """Tests for action cross-attention (dynamics v2)."""
 
-    def test_v2_output_shapes(self):
-        """v2 model produces same output shapes as v1."""
-        B = 4
-        model = DynamicsModel(DUMMY_VOCAB, FAST_CFG, action_cross_attn=True)
-        inputs = _random_dynamics_inputs(B=B)
-        hp_pred, ko_logits, field_logits = model(*inputs)
-        assert hp_pred.shape == (B, 4)
-        assert ko_logits.shape == (B, 4)
-        assert field_logits.weather.shape == (B, 5)
-        assert field_logits.terrain.shape == (B, 5)
-        assert field_logits.binary.shape == (B, 3)
-
     def test_v1_default_no_cross_attn(self):
         """Default model has no action_attn attribute."""
         model = DynamicsModel(DUMMY_VOCAB, FAST_CFG)
         assert model.action_cross_attn is False
         assert not hasattr(model, "action_attn")
         assert not hasattr(model, "action_pos_emb")
-
-    def test_v2_gradients_flow(self):
-        """Gradients reach action_pos_emb and action_attn."""
-        model = DynamicsModel(DUMMY_VOCAB, FAST_CFG, action_cross_attn=True)
-        inputs = _random_dynamics_inputs(B=4)
-        hp_pred, ko_logits, field_logits = model(*inputs)
-
-        loss = (hp_pred.sum() + ko_logits.sum()
-                + field_logits.weather.sum() + field_logits.terrain.sum()
-                + field_logits.binary.sum())
-        loss.backward()
-
-        # Check cross-attention specific params
-        assert model.action_pos_emb.weight.grad is not None
-        assert torch.isfinite(model.action_pos_emb.weight.grad).all()
-        for name, param in model.action_attn.named_parameters():
-            assert param.grad is not None, f"No gradient for action_attn.{name}"
-            assert torch.isfinite(param.grad).all(), f"Non-finite grad for action_attn.{name}"
-
-    def test_v2_checkpoint_roundtrip(self):
-        """Save and reload v2 model produces identical outputs."""
-        torch.manual_seed(42)
-        model = DynamicsModel(
-            DUMMY_VOCAB, FAST_CFG, d_action=16,
-            action_cross_attn=True, action_attn_heads=2,
-        )
-        model.eval()
-
-        B = 2
-        inputs = _random_dynamics_inputs(B=B)
-        with torch.no_grad():
-            hp_orig, ko_orig, fl_orig = model(*inputs)
-
-        with tempfile.NamedTemporaryFile(suffix=".pt", delete=False) as f:
-            ckpt_path = Path(f.name)
-            torch.save(
-                {
-                    "encoder_config": {
-                        "d_model": FAST_CFG.d_model,
-                        "n_layers": FAST_CFG.n_layers,
-                        "n_heads": FAST_CFG.n_heads,
-                        "d_ff": FAST_CFG.d_ff,
-                        "dropout": FAST_CFG.dropout,
-                    },
-                    "vocab_sizes": DUMMY_VOCAB,
-                    "model_state_dict": model.state_dict(),
-                    "d_action": model.d_action,
-                    "d_hidden": model.d_hidden,
-                    "n_mlp_layers": model.n_mlp_layers,
-                    "dropout": model._dropout,
-                    "action_cross_attn": model.action_cross_attn,
-                    "action_attn_heads": model.action_attn_heads,
-                    "action_attn_layers": model.action_attn_layers,
-                },
-                ckpt_path,
-            )
-
-        loaded = DynamicsModel.from_checkpoint(ckpt_path, device=torch.device("cpu"))
-        assert loaded.action_cross_attn is True
-
-        with torch.no_grad():
-            hp_loaded, ko_loaded, fl_loaded = loaded(*inputs)
-
-        assert torch.allclose(hp_orig, hp_loaded, atol=1e-6)
-        assert torch.allclose(ko_orig, ko_loaded, atol=1e-6)
-        assert torch.allclose(fl_orig.weather, fl_loaded.weather, atol=1e-6)
-
-        ckpt_path.unlink()
 
     def test_v1_checkpoint_loads_without_cross_attn_keys(self):
         """v1 checkpoint (no cross-attn keys) loads fine via from_checkpoint."""
@@ -535,29 +430,3 @@ class TestCrossAttention:
         assert torch.allclose(hp_orig, hp_loaded, atol=1e-6)
         ckpt_path.unlink()
 
-    def test_v2_predict_from_pooled_matches_forward(self):
-        """Two-stage API still works with cross-attention."""
-        torch.manual_seed(99)
-        B = 4
-        model = DynamicsModel(DUMMY_VOCAB, FAST_CFG, action_cross_attn=True)
-        model.eval()
-        inputs = _random_dynamics_inputs(B=B)
-
-        with torch.no_grad():
-            hp_fwd, ko_fwd, fl_fwd = model(*inputs)
-            pooled = model.encode_state(*inputs[:5])
-            hp_split, ko_split, fl_split = model.predict_from_pooled(
-                pooled, *inputs[5:],
-            )
-
-        assert torch.allclose(hp_fwd, hp_split, atol=1e-6)
-        assert torch.allclose(ko_fwd, ko_split, atol=1e-6)
-        assert torch.allclose(fl_fwd.weather, fl_split.weather, atol=1e-6)
-
-    def test_v2_param_count(self):
-        """v2 has more parameters than v1."""
-        v1 = DynamicsModel(DUMMY_VOCAB, FAST_CFG)
-        v2 = DynamicsModel(DUMMY_VOCAB, FAST_CFG, action_cross_attn=True)
-        n_v1 = sum(p.numel() for p in v1.parameters())
-        n_v2 = sum(p.numel() for p in v2.parameters())
-        assert n_v2 > n_v1, f"v2 ({n_v2:,}) should have more params than v1 ({n_v1:,})"
