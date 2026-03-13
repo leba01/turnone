@@ -95,7 +95,7 @@ def fig2_tera_and_aggression():
     br_tera = tera_data["aggregate"]["summary"]["br_uses_tera_frac"]
 
     bars = ax1.bar(
-        ["BC (Expert)", "BR (Optimal)"],
+        ["Convention", "Best Response"],
         [bc_tera * 100, br_tera * 100],
         color=["C0", "C3"],
         alpha=0.85,
@@ -128,8 +128,8 @@ def fig2_tera_and_aggression():
 
     x = np.arange(len(patterns))
     w = 0.35
-    ax2.bar(x - w / 2, bc_vals, w, label="BC (Expert)", color="C0", alpha=0.85)
-    ax2.bar(x + w / 2, br_vals, w, label="BR (Optimal)", color="C3", alpha=0.85)
+    ax2.bar(x - w / 2, bc_vals, w, label="Convention", color="C0", alpha=0.85)
+    ax2.bar(x + w / 2, br_vals, w, label="Best Response", color="C3", alpha=0.85)
     ax2.set_xticks(x)
     ax2.set_xticklabels(labels, fontsize=8)
     ax2.set_ylabel("Frequency (%)")
