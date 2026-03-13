@@ -1,0 +1,85 @@
+{
+  "n_battles_total": 124087,
+  "n_battles_with_winner": 124087,
+  "n_battles_with_turn1_data": 89904,
+  "tera_analysis": {
+    "overall_tera_turn1_rate": 0.2541,
+    "win_rate_tera_turn1": {
+      "mean": 0.5124,
+      "ci_low": 0.5085,
+      "ci_high": 0.5163,
+      "n": 63072
+    },
+    "win_rate_tera_later": {
+      "mean": 0.4894,
+      "ci_low": 0.4867,
+      "ci_high": 0.4921,
+      "n": 135747
+    },
+    "win_rate_no_tera": {
+      "mean": 0.5132,
+      "ci_low": 0.5088,
+      "ci_high": 0.5176,
+      "n": 49355
+    },
+    "head_to_head_tera_first_vs_not": {
+      "tera_first_wins": 0.5174,
+      "n": 45172
+    },
+    "both_tera_turn1_p1_win_rate": 0.4987,
+    "both_tera_turn1_n": 8950
+  },
+  "turn1_vs_outcome": {
+    "point_biserial_r": 0.2073,
+    "point_biserial_p": 0.0,
+    "quintile_win_rates": [
+      {
+        "quintile": 1,
+        "reward_range": [
+          -7.5,
+          -0.5
+        ],
+        "win_rate": 0.3471,
+        "n": 17654
+      },
+      {
+        "quintile": 2,
+        "reward_range": [
+          -0.5,
+          -0.01
+        ],
+        "win_rate": 0.4702,
+        "n": 18243
+      },
+      {
+        "quintile": 3,
+        "reward_range": [
+          -0.01,
+          0.165
+        ],
+        "win_rate": 0.5032,
+        "n": 17829
+      },
+      {
+        "quintile": 4,
+        "reward_range": [
+          0.165,
+          0.79
+        ],
+        "win_rate": 0.5378,
+        "n": 18184
+      },
+      {
+        "quintile": 5,
+        "reward_range": [
+          0.79,
+          7.5
+        ],
+        "win_rate": 0.6457,
+        "n": 17994
+      }
+    ],
+    "top_quintile_win_rate": 0.6457,
+    "bottom_quintile_win_rate": 0.3471
+  }
+}
