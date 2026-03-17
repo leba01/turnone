@@ -4,7 +4,7 @@
 
 Lucas Brennan-Almaraz · Stanford CS234 · Winter 2025--26
 
-[[Paper (PDF)]](paper/final.pdf) · [[Poster (PDF)]](poster.pdf) · ![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
+[[Paper (PDF)]](paper/turnone.pdf) · [[Poster (PDF)]](paper/turnone_poster.pdf) · ![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
 
 ---
 
@@ -176,7 +176,7 @@ turnone/
 ├── tests/                          # Test suite
 ├── results/                        # Analysis outputs (JSON)
 ├── figures/                        # Generated figures (PDF)
-├── paper/                          # LaTeX source + compiled PDF
+├── paper/                          # Paper + poster PDFs
 └── pyproject.toml
 ```
 
